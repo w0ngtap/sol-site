@@ -34,7 +34,7 @@ const POSTS = [
       <p>Sol is also built for exactly this: a team and its agents working in one place. We are its first team.</p>` },
 ];
 
-const DL = { mac:'https://github.com/marcocyl04-ux/sol-beta/releases/latest/download/Sol-mac.zip',
+const DL = { mac:'https://github.com/franktsai2008-eng/sol-mac/releases/latest/download/Sol-mac.zip',   // until sol-beta is stamped again (sol-dev #375): the 10-27 build with the first-run fix
              line:'curl -fsSL https://marcocyl04-ux.github.io/sol-beta/install | sh' };
 document.querySelectorAll('a[data-dl]').forEach(a => a.href = DL.mac);
 
