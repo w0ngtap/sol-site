@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sol · one window for all your AI</title>
+<!-- Sol's website, the home page. Marco, 2026-10-27: on first sight you can download; around it, other ways in.
+     The first screen is a Mac desktop (after heyclicky's, his reference): the menu bar with Sol's notch, Sol and the
+     download in the middle, and around it live little demos, icons and stickers that each open something (desk.js,
+     minis.js). Then the flow: See it, the problem and how Sol solves it (see.js) / Your turn, the live window
+     (demo.js) / Together, Cowork (cowork.js) / What's coming, the three pillars (pillars.js) / Good morning, the
+     download again. The blog and the films live in the notch. -->
+<link rel="stylesheet" href="style.css">
+<style>
+  /* ================= THE DESK: the first screen is a Mac desktop ================= */
+  .desk { position:relative; min-height:max(100vh, 760px); padding-top:36px; overflow:hidden;
+          background:radial-gradient(rgba(255,255,255,.075) 1px, transparent 1.2px) 0 0/24px 24px,
+                     radial-gradient(ellipse 60% 40% at 50% 100%, #2a0b16, transparent 70%), #08080a; }
+  .desk .core { position:relative; z-index:5; text-align:center; padding-top:min(20vh,170px); pointer-events:none; }
+  .desk .core > * { pointer-events:auto; }
+  .desk h1 { margin:0; font-size:clamp(104px,15vw,230px); line-height:.9; letter-spacing:-.065em; font-weight:650; display:inline-flex; align-items:center; gap:.12em; }
+  .desk h1 img { width:.62em; height:.62em; animation:breathe 7s ease-in-out infinite; }
+  @keyframes breathe { 50% { transform:scale(1.05) rotate(6deg); } }
+  .desk .tag { font-size:clamp(18px,1.7vw,24px); margin:16px 0 34px; color:var(--ink); letter-spacing:-.01em; }
+  .desk .tag i { font-style:normal; color:var(--dim); }
+  /* the two ways in, one row, the same size: Mac filled, Linux & Windows its glass twin; smaller than the name */
+  .desk .gets { display:grid; grid-template-columns:repeat(2, minmax(0,196px)); gap:12px; justify-content:center; }
+  .desk .gets > div { display:flex; flex-direction:column; align-items:stretch; gap:10px; text-align:center; }
+  .desk .gets .dl, .desk .gets .ghost { justify-content:center; height:44px; padding:0 16px; font-size:14.5px; font-weight:600; white-space:nowrap; }
+  .desk .gets small { color:var(--mute); font-size:13px; }
+  .desk .line { display:none; margin:18px auto 0; width:fit-content; align-items:center; gap:10px; font:13px ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--dim);
+                border:1px solid var(--hair); border-radius:10px; padding:8px 8px 8px 14px; background:rgba(0,0,0,.6); }
+  .desk .line.on { display:flex; }
+  .desk .line button { border:1px solid var(--hair); background:none; border-radius:7px; padding:3px 9px; font:12px -apple-system,sans-serif; color:var(--dim); }
+
+  /* windows on the desk: each one opens something; drag them anywhere */
+  .win { position:absolute; z-index:3; border-radius:11px; background:rgba(22,22,24,.72); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+         border:1px solid rgba(255,255,255,.13); box-shadow:0 24px 60px rgba(0,0,0,.55); cursor:grab; user-select:none; transition:box-shadow .3s, transform .4s var(--spring); }
+  .win:hover { box-shadow:0 30px 70px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.08); }
+  .win.drag { cursor:grabbing; transition:box-shadow .3s; }
+  .win .tb { height:24px; display:flex; align-items:center; gap:6px; padding:0 9px; }
+  .win .tb i { width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.16); transition:background .2s; }
+  .win:hover .tb i:nth-child(1) { background:#ff5f57; } .win:hover .tb i:nth-child(2) { background:#febc2e; } .win:hover .tb i:nth-child(3) { background:#28c840; }
+  .win .tb b { margin-left:auto; font-size:10.5px; font-weight:500; color:var(--mute); }
+  .win .pane { margin:0 6px 6px; border-radius:6px; overflow:hidden; background:#000; position:relative; }
+  .win .pane img, .win .pane video { display:block; width:100%; height:100%; object-fit:cover; pointer-events:none; }
+  .win .cap { position:absolute; left:0; right:0; top:calc(100% + 8px); text-align:center; font-size:12px; color:var(--mute); white-space:nowrap; transition:color .2s; }
+  .win:hover .cap { color:var(--ink); }
+  .win.txt .pane { background:#111; padding:12px 13px; font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--dim); }
+  .win.txt .pane b { color:var(--ink); font-weight:600; }
+
+
+  /* the windows' live demos (minis.js): each a toy of one thing Sol does */
+  .win .tb b::before { content:""; display:inline-block; width:5px; height:5px; border-radius:50%; background:#70df45; margin-right:5px; vertical-align:1px; box-shadow:0 0 6px #70df45; }
+  .mini { background:radial-gradient(ellipse 90% 80% at 50% 110%, #2a0f16, #050506 70%); font:11px/1.35 -apple-system,BlinkMacSystemFont,sans-serif; color:rgba(239,234,226,.92); }
+  .mini > div { position:absolute; inset:0; }
+  .mh .cr { position:absolute; left:14px; top:30px; width:44px; filter:drop-shadow(0 0 14px rgba(251,113,41,.5)); transform-origin:50% 80%; }
+  .mh .bub { position:absolute; left:66px; right:10px; top:24px; margin:0; padding:7px 9px; min-height:30px; border-radius:10px 10px 10px 3px; background:rgba(239,234,226,.1); border:1px solid rgba(239,234,226,.1); transition:opacity .3s; }
+  .mh .nm { position:absolute; right:12px; bottom:14px; padding:4px 10px; border-radius:999px; background:#efeae2; color:#111; font-weight:600; transition:opacity .25s; }
+  .mg .w { position:absolute; left:12px; right:12px; top:10px; height:52px; border-radius:7px; border:1px solid rgba(239,234,226,.14); background-image:linear-gradient(120deg, rgba(255,255,255,.06), transparent 60%); }
+  .mg .sb { position:absolute; left:6px; top:6px; bottom:6px; width:22px; border-radius:4px; background:rgba(239,234,226,.08); }
+  .mg .w p { margin:0; position:absolute; left:36px; height:6px; border-radius:3px; background:rgba(239,234,226,.22); }
+  .mg .w p:nth-of-type(1) { top:12px; width:42%; } .mg .w p:nth-of-type(2) { top:24px; right:8px; left:auto; width:30%; background:rgba(239,234,226,.85); } .mg .w p:nth-of-type(3) { top:36px; width:56%; }
+  .mg .row { position:absolute; left:12px; right:12px; bottom:10px; display:flex; align-items:center; gap:8px; color:rgba(239,234,226,.55); font-size:10px; }
+  .mg .tr { flex:1; height:3px; border-radius:2px; background:rgba(239,234,226,.15); position:relative; }
+  .mg .tr u { position:absolute; left:0; top:0; bottom:0; border-radius:2px; background:linear-gradient(90deg,#f4c82a,#fd69b9); }
+  .mg .tr em { position:absolute; top:50%; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:50%; background:#fd69b9; box-shadow:0 0 8px #fd69b9; }
+  .mg .v { font:10px ui-monospace,Menlo,monospace; color:rgba(239,234,226,.85); width:26px; text-align:right; }
+  .mt .bars { position:absolute; left:14px; right:14px; top:14px; height:30px; display:flex; gap:4px; align-items:center; }
+  .mt .bars i { flex:1; height:100%; border-radius:2px; background:linear-gradient(#fd69b9,#fb7129); transform-origin:50% 50%; }
+  .mt .cap { position:absolute; left:14px; right:14px; top:52px; margin:0; font-size:12px; transition:opacity .3s; }
+  .mt .cap::before { content:"“"; color:rgba(239,234,226,.4); } .mt .cap::after { content:"▍"; color:#fd69b9; }
+  .mt .card { position:absolute; left:14px; right:14px; bottom:10px; padding:6px 9px; border-radius:8px; background:rgba(239,234,226,.1); border:1px solid rgba(239,234,226,.14); display:grid; grid-template-columns:1fr auto; transition:opacity .25s; }
+  .mt .card small { color:rgba(239,234,226,.55); font-size:10px; } .mt .card s { display:inline-block; width:10px; height:1px; background:currentColor; vertical-align:3px; text-decoration:none; }
+  .mt .card em { grid-row:1/3; grid-column:2; align-self:center; font-style:normal; color:#9fe07e; font-size:10px; }
+  .mb .rail { position:absolute; left:14px; top:22px; height:38px; }
+  .mb .rail span { position:absolute; left:0; top:0; width:36px; height:38px; border-radius:8px; display:grid; place-items:end center; padding-bottom:4px; font-size:8.5px; color:rgba(239,234,226,.7);
+                   background:rgba(239,234,226,.07); border:1px solid rgba(239,234,226,.12); transition:transform .6s cubic-bezier(.34,1.56,.64,1), opacity .4s; }
+  .mb .rail span::before { content:""; position:absolute; top:7px; left:50%; width:12px; height:10px; margin-left:-6px; border-radius:3px; border:1.3px solid rgba(239,234,226,.6); }
+  .mb .rail span.new { border:1px solid transparent; background:linear-gradient(#121214,#121214) padding-box, var(--acc) border-box; color:#efeae2; box-shadow:0 0 14px rgba(253,105,185,.35); }
+  .mb .cap { position:absolute; left:14px; right:10px; top:auto; bottom:12px; text-align:left; margin:0; color:rgba(239,234,226,.55); font-size:10.5px; }
+  .mn { display:grid; justify-items:center; align-content:start; background:radial-gradient(ellipse 80% 70% at 50% 120%, #1c1630, transparent); }
+  .mn .slab { position:relative; background:#000; border:1px solid rgba(255,255,255,.08); border-top:0; overflow:hidden; box-shadow:0 10px 24px rgba(0,0,0,.6); }
+  .win .pane.mini img { height:auto; object-fit:contain; }
+  .win .pane.mini .slab img { position:absolute; left:50%; top:3px; width:12px; margin-left:-6px; }
+  .win .pane.mini .cr { width:44px; }
+  .mn .msg { position:absolute; left:12px; right:10px; top:22px; gap:1px 8px; display:grid; grid-template-columns:1fr auto; font-size:10.5px; white-space:nowrap; }
+  .mn .msg small { color:#8a877f; font-size:9.5px; } .mn .msg span { grid-row:1/3; grid-column:2; align-self:center; padding:3px 9px; border-radius:999px; background:#efeae2; color:#111; font-weight:600; font-size:9.5px; }
+
+  /* the live demo (demo.js): the real window, built from Sol's own CSS, playing its story until you take over */
+  .demo { position:relative; z-index:4; width:min(1100px, 100% - 64px); margin:0 auto; text-align:left; }
+
+  /* things on the desk: icons, a sticky, stickers; each one does something */
+  .thing { position:absolute; z-index:2; display:flex; flex-direction:column; align-items:center; gap:6px; font-size:12px; color:var(--dim); cursor:pointer; transition:transform .4s var(--spring); }
+  .thing:hover { transform:scale(1.08) rotate(-2deg); color:var(--ink); }
+  .thing span { padding:1px 6px; border-radius:4px; }
+  .thing:hover span { background:rgba(80,120,255,.55); color:#fff; }
+  .folder { width:58px; height:44px; position:relative; }
+  .folder::before { content:""; position:absolute; left:0; top:0; width:24px; height:10px; border-radius:4px 4px 0 0; background:rgba(239,234,226,.55); }
+  .folder::after { content:""; position:absolute; left:0; right:0; top:6px; bottom:0; border-radius:3px 6px 6px 6px; background:linear-gradient(rgba(239,234,226,.9), rgba(239,234,226,.62)); box-shadow:0 6px 16px rgba(0,0,0,.4); }
+  .trash { width:42px; height:50px; position:relative; border-radius:3px 3px 8px 8px; background:repeating-linear-gradient(90deg, rgba(255,255,255,.22) 0 2px, rgba(255,255,255,.08) 2px 7px); border:1px solid rgba(255,255,255,.25); }
+  .trash::before { content:""; position:absolute; left:-4px; right:-4px; top:-6px; height:5px; border-radius:3px; background:rgba(255,255,255,.4); }
+  .trash em { position:absolute; left:4px; right:4px; top:-14px; display:flex; gap:2px; justify-content:center; }
+  .trash em u { width:12px; height:9px; border-radius:2px; background:#1a1a1a; border:1px solid rgba(255,255,255,.3); transform:rotate(-12deg); } .trash em u:nth-child(2) { transform:rotate(9deg); }
+  .sticky { width:168px; padding:12px 12px 14px; background:#efeae2; color:#2a2622; border-radius:2px 2px 14px 2px; box-shadow:0 14px 30px rgba(0,0,0,.45); transform:rotate(3deg);
+            font:15px/1.35 "Bradley Hand","Marker Felt","Segoe Print",cursive; align-items:flex-start; text-align:left; }
+  .sticky small { font:10px -apple-system,sans-serif; letter-spacing:.1em; text-transform:uppercase; color:rgba(0,0,0,.45); }
+  .thing.sticky:hover { transform:rotate(0) scale(1.05); color:#2a2622; }
+  .hello { width:132px; border-radius:9px; overflow:hidden; background:#fff; color:#111; text-align:center; box-shadow:0 10px 24px rgba(0,0,0,.4); transform:rotate(-6deg); gap:0; }
+  .hello div { background:var(--acc); color:#fff; font:700 9px -apple-system,sans-serif; letter-spacing:.06em; padding:5px 0 4px; width:100%; }
+  .hello div small { display:block; font-weight:500; font-size:7px; letter-spacing:.02em; }
+  .hello p { margin:0; padding:9px 0 11px; font:600 24px/1 "Bradley Hand","Marker Felt",cursive; }
+  .thing.hello:hover { transform:rotate(0) scale(1.06); color:#111; }
+  .face { font:15px ui-monospace,Menlo,monospace; color:var(--mute); }
+  .sun-sticker { width:46px; filter:drop-shadow(0 8px 14px rgba(0,0,0,.5)); }
+  .phone { width:34px; height:60px; border-radius:9px; border:1.5px solid rgba(255,255,255,.4); background:#111; position:relative; transform:rotate(-14deg); }
+  .phone::before { content:""; position:absolute; left:4px; right:4px; top:6px; bottom:14px; border-radius:3px; background:radial-gradient(circle at 50% 60%, #ff5a3c, #3a0f1c 70%); }
+  .phone::after { content:""; position:absolute; left:50%; bottom:4px; width:6px; height:6px; margin-left:-3px; border-radius:50%; border:1px solid rgba(255,255,255,.4); }
+  .thing.hot { transform:scale(1.25) rotate(-6deg); color:var(--ink); }
+  .tip { position:absolute; z-index:20; pointer-events:none; font-size:12px; padding:5px 10px; border-radius:7px; background:rgba(0,0,0,.85); border:1px solid var(--hair); color:var(--ink); opacity:0; transition:opacity .15s; white-space:nowrap; }
+
+  /* ================= SEE IT: the glue → the orbit → the bloom ================= */
+  /* See it (see.js): the desk goes on, the same dots; the words on the left, the scene on the right (Marco's pins, 2026-10-27) */
+  #see { height:480vh; margin-top:-1px; }
+  .stage { position:sticky; top:0; height:100vh; overflow:hidden;
+                background:radial-gradient(rgba(255,255,255,calc(.075 * var(--glue,1))) 1px, transparent 1.4px) 0 0/24px 24px; }
+  .scene { position:absolute; left:0; top:0; width:900px; height:600px; transform-origin:0 0; }
+  #see .glow { position:absolute; left:50%; top:52%; width:900px; height:700px; translate:-50% -50%; opacity:0; pointer-events:none;
+               background:radial-gradient(closest-side, rgba(255,90,50,.22), rgba(255,46,78,.06) 55%, transparent); }
+  /* the story: three lines, the live one large, a rail filling as you scroll */
+  .story { position:absolute; left:6%; top:50%; translate:0 -50%; width:min(30%, 400px); z-index:3; padding-left:26px; }
+  .story .rail { position:absolute; left:0; top:6px; bottom:6px; width:2px; border-radius:2px; background:rgba(255,255,255,.1); }
+  .story .rail b { display:block; width:100%; border-radius:2px; background:var(--acc); background-size:100% 400px; }
+  .st { padding:12px 0; transition:opacity .5s; opacity:.32; }
+  .st span { font:12px ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--mute); }
+  .st h2 { margin:4px 0 0; font-size:20px; line-height:1.1; letter-spacing:-.02em; font-weight:600; transition:font-size .6s var(--ease), letter-spacing .6s; }
+  .st p { margin:0; max-height:0; overflow:hidden; color:var(--dim); font-size:16px; line-height:1.45; opacity:0; transition:max-height .6s var(--ease), opacity .5s, margin .6s; }
+  .st.on { opacity:1; } .st.on h2 { font-size:clamp(30px,3.2vw,46px); letter-spacing:-.04em; }
+  .st.on p { max-height:120px; opacity:1; margin-top:14px; }
+  .st.on span { background:var(--acc); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  /* the AI windows: glass, and as they fold (--k) a chip on Sol's window */
+  #see .aw { position:absolute; z-index:2; overflow:hidden; background:rgba(24,24,27,calc(.86 - var(--k) * .6)); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+             box-shadow:0 calc(24px - var(--k) * 24px) 60px rgba(0,0,0,calc(.6 - var(--k) * .6)), 0 0 0 1px rgba(255,255,255,.09); transition:box-shadow .3s; }
+  #see .aw.hit { box-shadow:0 24px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(239,234,226,.55); }
+  #see .aw .tb { height:24px; display:flex; align-items:center; gap:5px; padding:0 9px; opacity:calc(1 - var(--k) * 2); }
+  #see .aw .tb i { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.16); }
+  #see .aw .nm { position:absolute; top:5px; font-size:11px; font-weight:550; color:rgba(255,255,255,.7); white-space:nowrap; }
+  #see .aw .bd { position:absolute; left:8px; right:8px; top:28px; bottom:8px; border-radius:6px; background:#050505; padding:10px; overflow:hidden; opacity:calc(1 - var(--k) * 2.2);
+                 display:flex; flex-direction:column; gap:7px; }
+  #see .aw .b { margin:0; height:9px; border-radius:5px; background:rgba(255,255,255,.12); flex:none; } #see .aw .b.r { align-self:flex-end; background:rgba(239,234,226,.32); }
+  #see .aw code { font:10px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace; color:rgba(255,255,255,.75); white-space:nowrap; } #see .aw code.d { color:var(--mute); } #see .aw code.x { color:#ff6a6a; }
+  #see .aw .tabs { display:flex; gap:3px; } #see .aw .tabs i { flex:1; height:12px; border-radius:3px; background:rgba(255,255,255,.1); } #see .aw .tabs i:nth-child(4) { background:rgba(255,255,255,.28); }
+  #see .aw .url { margin:0; height:12px; border-radius:6px; background:rgba(255,255,255,.07); } #see .aw .blk { margin:0; flex:1; border-radius:5px; background:linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.02)); }
+  #see .aw .t { font-size:11px; color:var(--pearl); }
+  #see .aw.chip .nm { color:var(--ink); }
+  #see .aw.lit { box-shadow:0 0 0 1px rgba(255,140,80,.9), 0 0 22px rgba(255,90,50,.45); } #see .aw.lit .nm { color:#fff; }
+  /* the Sol window */
+  #see .solw { position:absolute; z-index:1; border-radius:16px; background:rgba(12,12,13,.9); box-shadow:0 50px 120px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.1); }
+  #see .solw > .tb { height:30px; display:flex; align-items:center; gap:6px; padding:0 12px; position:relative; }
+  #see .solw > .tb i { width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,.16); }
+  #see .solw > .tb img { position:absolute; left:50%; top:6px; width:20px; margin-left:-10px; animation:breathe 7s ease-in-out infinite; }
+  #see .solw::after { content:""; position:absolute; left:16px; right:16px; top:76px; height:1px; background:var(--hair); }
+  #see .chat { position:absolute; left:28px; right:28px; top:92px; bottom:142px; display:flex; flex-direction:column; justify-content:flex-end; gap:12px; overflow:hidden; }
+  .scene .m { max-height:0; opacity:0; transform:translateY(12px); transition:max-height .5s var(--ease), opacity .4s, transform .5s var(--spring); font-size:15px; line-height:1.4; flex:none; }
+  .scene .m.on { max-height:120px; opacity:1; transform:none; }
+  .scene .m.u { align-self:flex-end; background:var(--pearl); color:#000; padding:10px 15px; border-radius:18px 18px 4px 18px; max-width:72%; }
+  .scene .m.u:not(.on) { padding-top:0; padding-bottom:0; }
+  .scene .m.s { display:flex; gap:10px; align-items:flex-start; color:var(--ink); } .scene .m.s > img { width:24px; margin-top:-1px; }
+  .scene .m.s small { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
+  .scene .m.s em { font-style:normal; font-size:11.5px; color:var(--dim); border:1px solid rgba(255,255,255,.14); border-radius:999px; padding:3px 9px; }
+  .scene .m.s em.new { color:#000; background:var(--acc); border:0; font-weight:600; }
+  #see .shelf { position:absolute; left:28px; right:28px; bottom:72px; display:flex; gap:8px; flex-wrap:wrap; }
+  #see .shelf span { font-size:13px; padding:7px 13px; border-radius:999px; border:1px solid rgba(255,255,255,.16); color:var(--ink); background:rgba(255,255,255,.04);
+                     opacity:0; transform:scale(.4) translateY(10px); transition:opacity .3s, transform .5s var(--spring); }
+  #see .shelf span::before { content:""; display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--pearl); margin-right:7px; vertical-align:1px; }
+  #see .shelf span.on { opacity:1; transform:none; }
+  #see .shelf .runs { position:relative; border-color:transparent; background:linear-gradient(#0c0c0d,#0c0c0d) padding-box, var(--acc) border-box; box-shadow:0 0 26px rgba(255,90,50,.4); }
+  .scene .in { position:absolute; left:20px; right:20px; bottom:18px; height:42px; border-radius:21px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+             display:flex; align-items:center; padding:0 18px; font-size:14.5px; color:var(--ink); }
+  .scene .in .ph { position:absolute; left:18px; color:var(--mute); transition:opacity .2s; }
+  .scene .in .caret { width:1.5px; height:17px; background:var(--pearl); margin-left:1px; animation:caret 1s steps(1) infinite; }
+  @keyframes caret { 50% { opacity:0; } }
+  /* the cursor (you) and what it carries */
+  .scene .cur { position:absolute; left:0; top:0; z-index:5; pointer-events:none; }
+  .scene .cur svg { width:16px; filter:drop-shadow(0 2px 4px rgba(0,0,0,.6)); }
+  .scene .cur .you { position:absolute; left:16px; top:18px; font-size:11px; font-weight:650; padding:2px 7px; border-radius:999px; background:var(--pearl); color:#000; }
+  .scene .cur .carry { position:absolute; left:52px; top:18px; font-size:11px; white-space:nowrap; padding:2px 8px; border-radius:999px; border:1px dashed rgba(255,255,255,.4);
+                     color:var(--ink); background:rgba(0,0,0,.6); opacity:0; transition:opacity .3s; }
+  .scene .cur.busy .carry { opacity:1; }
+  #see .count { position:absolute; right:18px; top:-18px; font-size:13px; color:var(--mute); white-space:nowrap; }
+  #see .count b { font:600 22px/1 ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--ink); margin-right:6px; vertical-align:-2px; }
+
+
+  /* ================= YOUR TURN and TOGETHER: two chapters, one shape: a heading, a line, the live thing ================= */
+  .chapter { padding:150px 0 130px; text-align:center; position:relative; }
+  .chapter h2 { margin:0; font-size:clamp(40px,5.6vw,84px); letter-spacing:-.05em; font-weight:650; line-height:.98; }
+  .chapter h2 span { background:var(--acc); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .chapter > p { color:var(--dim); font-size:18px; max-width:560px; margin:18px auto 56px; line-height:1.5; padding:0 24px; }
+  #try { background:radial-gradient(ellipse 70% 50% at 50% 70%, rgba(251,113,41,.09), transparent 70%); }
+  #together .room { width:min(1180px, 100% - 64px); margin:0 auto; }
+  @media (max-width:900px) { .chapter { padding:100px 0 80px; } #together .room { width:calc(100% - 24px); } .chapter > p { font-size:16px; } }
+  /* the desk's nudge down into the story */
+  .desk .cue { position:absolute; z-index:5; left:50%; bottom:28px; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; font-size:12.5px; color:var(--mute); transition:color .2s; }
+  .desk .cue:hover { color:var(--ink); }
+  .desk .cue i { width:1px; height:34px; background:linear-gradient(var(--pearl), transparent); animation:cue 2.2s ease-in-out infinite; transform-origin:top; }
+  @keyframes cue { 0% { transform:scaleY(0); } 50% { transform:scaleY(1); } 100% { transform:scaleY(1); opacity:0; } }
+
+  /* ================= END ================= */
+  #end { padding:40px 6% 0; text-align:center; background:linear-gradient(#000, #000 340px, #2a0f0c 470px, #c8644a 72%, var(--pearl) 92%); color:#111; }
+  /* the film (Higgsfield, from the real creature): it wakes, the sun comes up behind it, and it holds there */
+  #end .dawnfilm { display:block; width:min(760px,100%); aspect-ratio:16/9; margin:0 auto -40px; object-fit:cover; mix-blend-mode:screen; -webkit-mask:radial-gradient(closest-side, #000 62%, transparent); mask:radial-gradient(closest-side, #000 62%, transparent); }
+  #end h2 { position:relative; color:var(--pearl); margin:0; font-size:clamp(48px,7.4vw,108px); letter-spacing:-.05em; font-weight:650; line-height:.95; }
+  #end p { color:rgba(255,255,255,.72); font-size:18px; margin:16px 0 30px; }
+  #end .dl { background:#111; color:var(--pearl); }
+  #end footer.foot { margin-top:120px; color:rgba(0,0,0,.5); } #end footer.foot a:hover { color:#000; }
+
+  @media (max-width:900px) {
+    .story { left:6%; right:6%; width:auto; top:64px; translate:none; padding-left:0; } .story .rail { display:none; }
+    .st:not(.on) { display:none; } .st.on h2 { font-size:28px; } .st p { font-size:15px; }
+    #things { display:none; } .demo { width:calc(100% - max(32px, 6vw)); }
+    #end footer.foot { flex-direction:column; }
+  }
+  @media (max-width:480px) { .desk .core { padding-left:16px; padding-right:16px; } .desk .tag { font-size:15.5px; } .desk .gets { gap:10px; } .desk .gets .dl, .desk .gets .ghost { height:42px; font-size:13.5px; padding:0 10px; gap:7px; } .desk .gets small { font-size:11.5px; } }
+</style>
+<link rel="icon" href="media/sol.svg">
+<link rel="stylesheet" href="pillars.css">
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="cowork.css">
+</head>
+<body>
+
+<nav class="menubar"></nav>
+
+<!-- ============ THE DESK ============ -->
+<section class="desk" id="desk">
+  <div class="core">
+    <h1><img src="media/sol.svg" alt="">Sol</h1>
+    <p class="tag">one window for all your AI <i>· it lives on your Mac</i></p>
+    <div class="gets">
+      <div><a class="dl" id="heroDl" data-dl href="#"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M11.2 8.5c0-1.6 1.3-2.3 1.4-2.4-.8-1.1-1.9-1.3-2.3-1.3-1-.1-1.9.6-2.4.6s-1.3-.6-2.1-.6c-1.1 0-2.1.6-2.6 1.6-1.1 1.9-.3 4.8.8 6.3.5.8 1.1 1.6 1.9 1.6.8 0 1-.5 2-.5s1.2.5 2 .5c.8 0 1.4-.8 1.9-1.5.6-.9.8-1.7.8-1.7s-1.4-.6-1.4-2.6zM9.6 3.8c.4-.5.7-1.2.6-1.9-.6 0-1.4.4-1.8.9-.4.4-.7 1.2-.6 1.8.7.1 1.4-.3 1.8-.8z"/></svg>Download for Mac</a><small>free while it's in beta</small></div>
+      <div><button class="ghost" id="lineBtn">Linux &amp; Windows</button><small>one line in a terminal</small></div>
+    </div>
+    <div class="line" id="line"><span>curl -fsSL https://marcocyl04-ux.github.io/sol-beta/install | sh</span><button>copy</button></div>
+  </div>
+
+  <a class="cue" href="#see">see how it works<i></i></a>
+
+  <!-- the desk around it; data-go is where each thing leads, data-tip what it says on hover -->
+  <div id="things"></div>
+  <div class="tip" id="tip"></div>
+</section>
+
+<!-- ============ SEE IT ============ -->
+<section id="see">
+  <div class="stage">
+    <div class="story"></div>
+    <div class="scene"></div>
+  </div>
+</section>
+
+<!-- ============ YOUR TURN: the live window (demo.js), right after the story shows what it does ============ -->
+<section id="try" class="chapter">
+  <h2>Your turn.<br><span>Type anything.</span></h2>
+  <p>This is Sol's window, built from the app's own parts. It plays on its own until you take over.</p>
+  <div class="demo" id="demo"></div>
+</section>
+
+<!-- ============ TOGETHER: Cowork (cowork.js), a room of people and their agents, playing itself ============ -->
+<section id="together" class="chapter">
+  <h2>Bring your people.<br><span>And their agents.</span></h2>
+  <p>Cowork is a room for a team and its agents: one board, one record, polls and decisions everyone can see. Click around, it's live.</p>
+  <div class="room" id="room"></div>
+</section>
+
+<!-- ============ WHAT'S COMING: the three pillars (pillars.js) ============ -->
+<section class="solpillars" id="road"></section>
+
+<!-- ============ END ============ -->
+<section id="end">
+  <video class="dawnfilm" src="media/films/creature-alive.mp4" poster="media/films/creature-alive.jpg" muted playsinline preload="auto" aria-hidden="true"></video>
+  <h2 id="download">Good morning.</h2>
+  <p>Sol for Mac. Free while it's in beta.</p>
+  <a class="dl" data-dl href="#"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2v9M4 7l4 4 4-4M3 14h10"/></svg>Download for Mac</a>
+  <footer class="foot"><span>Sol · made by three people and their agents</span><span><a href="blog.html">Blog</a><a href="#">GitHub</a><a href="#">Discord</a></span></footer>
+</section>
+
+
+<script src="nav.js"></script>
+<script src="posts.js"></script>
+<script src="home.js"></script>
+<script src="minis.js"></script>
+<script src="desk.js"></script>
+<script src="see.js"></script>
+<script type="module">import './demo.js'; SolDemo.mount(document.getElementById('demo'));</script>
+<script type="module">import './cowork.js'; SolCowork.mount(document.getElementById('room'));</script>
+<script type="module">import { mount } from './pillars.js'; mount(document.getElementById('road'));</script>
+</body>
+</html>

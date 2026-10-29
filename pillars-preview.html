@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sol · The sun is still rising (preview)</title>
+<!-- A preview of pillars.js on its own: filler above and below so the section can be scrolled through. -->
+<link rel="icon" href="media/sol.svg">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="pillars.css">
+<style>
+  .filler { min-height:100vh; display:grid; place-items:center; text-align:center; padding:0 6%; color:var(--mute); }
+  .filler h2 { margin:0; color:var(--ink); font-size:clamp(28px,4vw,48px); letter-spacing:-.04em; font-weight:600; }
+  .filler p { margin:12px 0 0; }
+  .after { background:linear-gradient(#030303, #3a1410 40%, #c8644a 75%, var(--pearl)); color:#111; }
+  .after h2 { color:#111; }
+</style>
+</head>
+<body>
+<section class="filler"><div><h2>See it</h2><p>(the section before)</p><p>scroll down</p></div></section>
+<section class="solpillars" id="road"></section>
+<section class="filler after"><div><h2>Good morning.</h2><p>(the section after)</p></div></section>
+<script type="module">
+  import './pillars.js';
+  window.SolPillars.mount(document.getElementById('road'));
+</script>
+</body>
+</html>

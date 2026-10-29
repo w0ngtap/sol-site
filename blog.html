@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sol · Blog</title>
+<!-- The blog: films and notes, mixed, newest first. The newest film leads; a filter for Films and Notes. -->
+<link rel="stylesheet" href="style.css">
+<style>
+  .head { padding:110px 0 30px; display:flex; align-items:flex-end; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+  .filter { display:flex; padding:3px; border-radius:999px; background:rgba(255,255,255,.05); border:1px solid var(--hair); }
+  .filter button { border:0; background:none; padding:6px 14px; border-radius:999px; color:var(--dim); font-size:13.5px; }
+  .filter button.on { background:rgba(255,255,255,.13); color:var(--ink); }
+  .lead { display:grid; grid-template-columns:1.6fr 1fr; gap:0; border-radius:20px; overflow:hidden; border:1px solid var(--hair); margin-bottom:16px; }
+  .lead .media { position:relative; min-height:420px; cursor:pointer; overflow:hidden; }
+  .lead .media > * { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .lead .txt { padding:34px; display:flex; flex-direction:column; justify-content:flex-end; gap:10px; background:rgba(255,255,255,.02); }
+  .lead .txt small { color:var(--mute); }
+  .lead .txt h2 { margin:0; font-size:36px; letter-spacing:-.035em; line-height:1.05; font-weight:600; }
+  .lead .txt p { margin:0; color:var(--dim); }
+  
+  .all { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; padding-bottom:80px; }
+  .post.hide { display:none; }
+  .sub { border-top:1px solid var(--hair); padding:60px 0; display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; }
+  .sub h3 { margin:0; font-size:26px; letter-spacing:-.03em; font-weight:600; }
+  .sub p { margin:6px 0 0; color:var(--dim); }
+  .sub form { display:flex; gap:8px; }
+  .sub input { border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.04); border-radius:999px; padding:12px 18px; color:var(--ink); font:inherit; width:260px; outline:none; }
+  .sub input:focus { border-color:rgba(255,255,255,.35); }
+  @media (max-width:900px) { .lead, .all { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<nav class="menubar" data-on="blog"></nav>
+
+<div class="wrap">
+  <div class="head">
+    <div><div class="kick">Blog</div><h1 class="big">Films and notes<br>from the build.</h1></div>
+    <div class="filter"><button class="on" data-f="all">All</button><button data-f="film">Films</button><button data-f="note">Notes</button></div>
+  </div>
+  <div class="lead" id="lead"></div>
+  <div class="all" id="all"></div>
+  <div class="sub">
+    <div><h3>Get the next one.</h3><p>A note when something lands. No more than one a week.</p></div>
+    <form onsubmit="event.preventDefault(); this.innerHTML = '<p>Thanks. Talk soon.</p>'"><input type="email" placeholder="you@email.com" required><button class="dl sm" style="padding:12px 20px">Subscribe</button></form>
+  </div>
+</div>
+
+<footer class="foot"><span>Sol · made by three people and their agents</span><span><a href="index.html">Home</a><a href="#">GitHub</a><a href="#">Discord</a></span></footer>
+<div class="theater"><button class="x">×</button><video controls playsinline></video></div>
+
+<script src="nav.js"></script>
+<script src="posts.js"></script>
+<script>
+  const lead = POSTS.find(p => p.video);
+  document.getElementById('lead').innerHTML = `
+    <div class="media"><div class="cov ${lead.cover}"></div><video src="${lead.video}" autoplay muted loop playsinline></video><span class="play">▶</span></div>
+    <div class="txt"><small>Film · ${fmtDate(lead.date)} · ${lead.len}</small><h2>${lead.title}</h2><p>${lead.say}</p><div style="display:flex;gap:8px;margin-top:10px"><button class="ghost">▶ Watch</button><a class="ghost" href="post.html?p=${lead.id}">Read</a></div></div>`;
+  document.querySelectorAll('#lead .media, #lead .ghost').forEach(el => el.onclick = () => openTheater(lead.video));
+  const all = document.getElementById('all');
+  POSTS.filter(p => p !== lead).forEach(p => all.append(postCard(p)));
+  document.querySelectorAll('.filter button').forEach(b => b.onclick = () => {
+    document.querySelectorAll('.filter button').forEach(x => x.classList.toggle('on', x === b));
+    const f = b.dataset.f;
+    document.getElementById('lead').style.display = f === 'note' ? 'none' : '';
+    all.querySelectorAll('.post').forEach(p => p.classList.toggle('hide', f !== 'all' && p.dataset.kind !== f));
+  });
+</script>
+</body>
+</html>

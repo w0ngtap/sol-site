@@ -1,0 +1,350 @@
+/* Sol's Cowork, as a live demo for the website (cowork.js mounts it). Copied from the app's own look:
+   mac/src/face.css (the glass: one black base at 0.78, every surface the same black laid again at a step, every line and
+   word the "on" colour at an opacity), cowork/room.css (the room: people strip, goal, tiles, what happened, the box),
+   cowork/cowork.css (the action board's columns and cards, the bar card), cowork/talk.css (the talk), cowork/tools.css
+   (polls and the decision log). Everything is scoped under .solcowork and prefixed sc- so the site's own classes never
+   touch it. */
+.solcowork {
+  --sc-on: 239, 234, 226;                       /* pearl #efeae2 */
+  --sc-base: rgba(0, 0, 0, .78);
+  --sc-page: rgba(0, 0, 0, .10);
+  --sc-side: rgba(0, 0, 0, .10);
+  --sc-surface: rgba(0, 0, 0, .25);
+  --sc-raised: rgba(0, 0, 0, .40);
+  --sc-island: rgba(0, 0, 0, .55);
+  --sc-pop: rgba(10, 9, 9, .96);
+  --sc-pop-shadow: 0 12px 40px -12px rgba(0, 0, 0, .6);
+  --sc-shade: rgba(0, 0, 0, .55);
+  --sc-line: rgba(var(--sc-on), .07);
+  --sc-edge: rgba(var(--sc-on), .11);
+  --sc-ink: rgba(var(--sc-on), .94);
+  --sc-dim: rgba(var(--sc-on), .56);
+  --sc-mute: rgba(var(--sc-on), .32);
+  --sc-r-s: 6px; --sc-r: 10px; --sc-r-l: 14px; --sc-pill: 999px;
+  --sc-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  --sc-sol: linear-gradient(90deg, #fd69b9, #ff2e4e, #fb7129, #f89b2a, #f4c82a);
+  position: relative; display: block; width: 100%; overflow: hidden; contain: layout paint;
+  font: 15px/1.55 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Inter", sans-serif;
+  color: var(--sc-ink); -webkit-font-smoothing: antialiased; text-align: left; user-select: none; -webkit-user-select: none;
+}
+.solcowork *, .solcowork *::before, .solcowork *::after { box-sizing: border-box; }
+.solcowork :is(h1, h2, h3, h4, h5, p, ul, ol, li, figure) { margin: 0; padding: 0; }
+.solcowork :is(h1, h2, h3, h4, h5) { font: inherit; text-transform: none; letter-spacing: normal; color: inherit; background: none; -webkit-text-fill-color: currentColor; }
+.solcowork [hidden] { display: none !important; }
+.solcowork ul { list-style: none; }
+.solcowork button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; text-align: inherit; }
+.solcowork button:focus-visible, .solcowork input:focus-visible { outline: 2px solid var(--sc-ink); outline-offset: 2px; }
+.solcowork svg { display: block; overflow: visible; }
+.solcowork b { font-weight: 600; }
+
+/* ---- the canvas: a fixed design size, scaled to the element's width ---- */
+.solcowork .sc-canvas { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.solcowork .sc-win {
+  position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 14px;
+  /* the desktop under the glass (the maps' wallpaper: violet at the top left, warm brown at the bottom right) */
+  background:
+    radial-gradient(120% 90% at 100% 100%, rgba(156, 112, 64, .55), transparent 60%),
+    radial-gradient(90% 80% at 0% 0%, rgba(88, 72, 130, .45), transparent 65%),
+    linear-gradient(160deg, #2c2638, #3a2f3b 55%, #5a4632);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .08), 0 40px 90px -30px rgba(0, 0, 0, .8), 0 0 0 .5px rgba(0, 0, 0, .9);
+}
+.solcowork .sc-win::before { content: ""; position: absolute; inset: 0; background: var(--sc-base); pointer-events: none; opacity: .32; }
+/* face.css .space: the faint dot grid on the paper */
+.solcowork .sc-win::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background-image: radial-gradient(rgba(var(--sc-on), .05) 1px, transparent 1.2px); background-size: 16px 16px; }
+.solcowork .sc-win > * { position: relative; z-index: 1; }
+
+/* ---- the bar (face.css .bar, room.css .rm-fy-pill) ---- */
+.solcowork .sc-bar { height: 44px; flex: none; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 18px; color: var(--sc-dim); font-size: 12px; z-index: 6; }
+.solcowork .sc-lights { display: flex; gap: 8px; margin-right: 22px; }
+.solcowork .sc-lights i { width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; box-shadow: inset 0 0 0 .5px rgba(0, 0, 0, .25); }
+.solcowork .sc-lights i:nth-child(2) { background: #febc2e; }
+.solcowork .sc-lights i:nth-child(3) { background: #28c840; }
+.solcowork .sc-title { display: flex; align-items: baseline; gap: 10px; font-size: 13px; color: var(--sc-ink); white-space: nowrap; }
+.solcowork .sc-title span { color: var(--sc-mute); }
+.solcowork .sc-spacer { flex: 1; }
+.solcowork .sc-fy { position: relative; display: inline-flex; align-items: center; gap: 7px; height: 26px; padding: 0 12px 0 10px; border-radius: var(--sc-pill); background: #000; color: #e9e6df; font-size: 12px; white-space: nowrap; }
+.solcowork .sc-fy img { width: 13px; height: 13px; }
+.solcowork .sc-me { font: 11.5px var(--sc-mono); color: var(--sc-dim); margin: 0 6px; white-space: nowrap; }
+.solcowork .sc-teamw { font-style: italic; color: var(--sc-mute); }
+.solcowork .sc-tabs { display: flex; gap: 6px; }
+.solcowork .sc-tab { height: 24px; padding: 0 11px; border-radius: var(--sc-pill); box-shadow: inset 0 0 0 1px var(--sc-line); color: var(--sc-mute); font-size: 12px; white-space: nowrap; transition: color .2s, box-shadow .2s; }
+.solcowork .sc-tab:hover { color: var(--sc-ink); }
+.solcowork .sc-tab.on { color: var(--sc-ink); box-shadow: inset 0 0 0 1px var(--sc-dim); }
+.solcowork .sc-dots { display: flex; flex-direction: column; gap: 2.5px; padding: 0 4px 0 8px; }
+.solcowork .sc-dots i { width: 3px; height: 3px; border-radius: 50%; background: var(--sc-dim); }
+
+/* ---- the bar card (cowork.css .cbarcard / .gcard): one black goo card hanging on a neck under for-you ---- */
+.solcowork .sc-barcard { position: absolute; top: 34px; right: 12px; z-index: 20; display: flex; flex-direction: column; align-items: flex-end; pointer-events: none; transform-origin: 100% 0; }
+.solcowork .sc-barcard[hidden] { display: none; }
+.solcowork .sc-neck { width: 30px; height: 14px; margin-right: var(--neck, 280px); background: #000;
+  -webkit-mask: radial-gradient(10px 12px at 0 0, transparent 98%, #000) top left / 51% 100% no-repeat, radial-gradient(10px 12px at 100% 0, transparent 98%, #000) top right / 51% 100% no-repeat;
+  mask: radial-gradient(10px 12px at 0 0, transparent 98%, #000) top left / 51% 100% no-repeat, radial-gradient(10px 12px at 100% 0, transparent 98%, #000) top right / 51% 100% no-repeat; }
+.solcowork .sc-gcard { pointer-events: auto; display: flex; align-items: center; gap: 10px; margin-top: -1px; padding: 7px 8px 7px 16px; background: #000; border-radius: 18px; color: #e9e6df; font-size: 12.5px; box-shadow: 0 10px 30px -10px rgba(0, 0, 0, .7); white-space: nowrap; }
+.solcowork .sc-gcard .from { color: rgba(233, 230, 223, .55); font-size: 11px; }
+.solcowork .sc-gcard .t { display: flex; align-items: center; gap: 8px; }
+.solcowork .sc-gcard .t small { color: rgba(233, 230, 223, .55); font-size: 11px; display: inline-flex; align-items: center; gap: 5px; }
+.solcowork .sc-gbtn { height: 26px; padding: 0 13px; border-radius: var(--sc-pill); background: #e9e6df; color: #000; font-size: 12.5px; font-weight: 600; }
+.solcowork .sc-gbtn.ghost { background: none; box-shadow: inset 0 0 0 1px rgba(233, 230, 223, .4); color: #e9e6df; font-weight: 500; }
+.solcowork .sc-gbtn.ghost:hover { box-shadow: inset 0 0 0 1px rgba(233, 230, 223, .75); }
+
+/* ---- the body ---- */
+.solcowork .sc-body { flex: 1; min-height: 0; display: flex; }
+
+/* ---- the side (face.css .side, .newc, .group, .row; cowork.css .cside) ---- */
+.solcowork .sc-side { flex: none; width: 240px; display: flex; flex-direction: column; background: rgba(0, 0, 0, .16); border-top-right-radius: var(--sc-r-l); padding-bottom: 12px; }
+.solcowork .sc-crea { display: flex; align-items: flex-end; justify-content: center; gap: 12px; padding: 12px 0 10px; }
+.solcowork .sc-crea img { width: 34px; height: 34px; }
+.solcowork .sc-seg { display: flex; margin: 0 14px 10px; padding: 2px; border-radius: var(--sc-pill); background: rgba(0, 0, 0, .3); font-size: 13px; }
+.solcowork .sc-seg span { flex: 1; text-align: center; padding: 2px 0; border-radius: var(--sc-pill); color: var(--sc-dim); }
+.solcowork .sc-seg span.on { background: #e9e6df; color: #111; }
+.solcowork .sc-newc { display: flex; align-items: center; gap: 9px; margin: 2px 10px 6px; padding: 7px 10px; background: var(--sc-surface); box-shadow: inset 0 1px 0 var(--sc-edge); border-radius: var(--sc-r); color: var(--sc-ink); font-size: 13px; }
+.solcowork .sc-newc i { font-style: normal; font-size: 16px; line-height: 1; color: var(--sc-ink); width: 12px; text-align: center; }
+.solcowork .sc-group { display: flex; align-items: center; gap: 6px; margin: 10px 10px 2px; padding: 4px 10px; font-size: 11px; letter-spacing: .08em; font-variant-caps: all-small-caps; color: var(--sc-mute); }
+.solcowork .sc-group::before { content: ""; width: 0; height: 0; border-left: 3.5px solid transparent; border-right: 3.5px solid transparent; border-top: 4.5px solid var(--sc-mute); }
+.solcowork .sc-group small { margin-left: auto; font-size: 11px; font-variant-numeric: tabular-nums; }
+.solcowork .sc-row { position: relative; display: flex; align-items: center; gap: 9px; width: calc(100% - 20px); margin: 0 10px; padding: 6px 10px; border-radius: var(--sc-r-s); color: var(--sc-dim); font-size: 13px; white-space: nowrap; }
+.solcowork button.sc-row:hover { color: var(--sc-ink); }
+.solcowork .sc-row.on { color: var(--sc-ink); background: var(--sc-surface); }
+.solcowork .sc-row .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.solcowork .sc-row .t span { color: var(--sc-mute); }
+.solcowork .sc-row .w { flex: none; max-width: 52%; overflow: hidden; text-overflow: ellipsis; font-size: 11px; color: var(--sc-mute); transition: color .3s; }
+.solcowork .sc-row .w.lit { color: var(--sc-ink); }
+.solcowork .sc-row kbd { font: inherit; font-size: 10.5px; color: var(--sc-mute); }
+.solcowork .sc-row.person { padding-top: 5px; padding-bottom: 5px; }
+.solcowork .sc-sidefoot { margin-top: auto; padding: 0 20px; display: flex; align-items: center; gap: 7px; font: 10.5px var(--sc-mono); color: var(--sc-mute); letter-spacing: .02em; }
+.solcowork .sc-sidefoot i { width: 6px; height: 6px; border-radius: 50%; background: #70df45; box-shadow: 0 0 0 0 rgba(112, 223, 69, .5); animation: sc-live 2.4s ease-out infinite; }
+.solcowork .sc-sidefoot.paused i { background: var(--sc-mute); animation: none; }
+
+/* ---- a person's mark (bits.tsx Who): their family's bud, a droplet on the shoulder while their agent works ---- */
+.solcowork .sc-who { position: relative; flex: none; display: inline-flex; line-height: 0; }
+.solcowork .sc-who > svg, .solcowork .sc-who > img { width: 100%; height: 100%; }
+.solcowork .sc-who .sc-st { position: absolute; right: -38%; bottom: -26%; width: 62%; height: 62%; min-width: 9px; min-height: 9px; }
+.solcowork .sc-who.working::before { content: ""; position: absolute; inset: -18%; border-radius: 50%; background: var(--fam, #fff); opacity: 0; filter: blur(3px); animation: sc-pulse 1.8s ease-out infinite; }
+.solcowork .sc-drop { width: 100%; height: 100%; }
+.solcowork .sc-drop .spin { transform-box: view-box; transform-origin: 50% 50%; animation: sc-spin 4.2s linear infinite; }
+.solcowork .sc-drop .breath { transform-box: view-box; transform-origin: 50% 50%; animation: sc-breath 1.4s ease-in-out infinite alternate; }
+
+/* ---- the stage ---- */
+.solcowork .sc-stage { flex: 1; min-width: 0; position: relative; }
+.solcowork .sc-view { position: absolute; inset: 0; display: flex; }
+.solcowork .sc-view[hidden] { display: none; }
+
+/* the room (room.css): a centre, and a right column of what happened and talk */
+.solcowork .sc-room { display: grid; grid-template-columns: minmax(0, 1fr) 340px; }
+.solcowork .sc-centre { min-width: 0; min-height: 0; display: flex; flex-direction: column; padding: 0 28px 18px; }
+.solcowork .sc-strip { flex: none; display: flex; gap: 4px; height: 64px; align-items: center; border-bottom: 1px solid var(--sc-line); margin: 0 -28px; padding: 0 20px; }
+.solcowork .sc-worker { flex: 0 1 260px; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 6px 10px 6px 6px; border-radius: var(--sc-r-s); }
+.solcowork .sc-worker:hover { background: var(--sc-surface); }
+.solcowork .sc-worker .tx { min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+.solcowork .sc-worker .n { font-size: 13px; font-weight: 600; white-space: nowrap; }
+.solcowork .sc-worker .n span { font-weight: 400; color: var(--sc-dim); }
+.solcowork .sc-worker .l { font-size: 12px; color: var(--sc-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color .3s; }
+.solcowork .sc-worker .l.lit { color: var(--sc-ink); }
+.solcowork .sc-main { flex: 1; min-height: 0; position: relative; }
+.solcowork .sc-home, .solcowork .sc-page { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.solcowork .sc-page { overflow-y: auto; padding: 14px 0 12px; scrollbar-width: none; }
+.solcowork .sc-page::-webkit-scrollbar { display: none; }
+.solcowork .sc-page > * { flex-shrink: 0; }
+.solcowork .sc-goal { flex: none; display: flex; align-items: center; gap: 14px; min-height: 62px; margin: 18px 0 0; padding: 10px 18px 10px 14px; border: 1px solid var(--sc-line); border-radius: var(--sc-r); background: var(--sc-surface); width: 100%; }
+.solcowork .sc-goal:hover { background: var(--sc-raised); }
+.solcowork .sc-goal .gk { font: 11px var(--sc-mono); color: var(--sc-dim); letter-spacing: .06em; }
+.solcowork .sc-goal .gtx { min-width: 0; display: flex; flex-direction: column; }
+.solcowork .sc-goal .gt { font-size: 19px; font-weight: 600; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.solcowork .sc-goal .gs { font-size: 12px; color: var(--sc-dim); margin-top: 3px; }
+.solcowork .sc-goal .op { margin-left: auto; flex: none; font-size: 13px; }
+.solcowork .sc-gh { flex: none; display: flex; align-items: baseline; gap: 12px; margin: 22px 0 4px; min-width: 0; }
+.solcowork .sc-gh b { font-size: 15px; white-space: nowrap; }
+.solcowork .sc-gh span { font-size: 12.5px; color: var(--sc-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.solcowork .sc-gridwrap { flex: 1; min-height: 0; margin: 0 -16px; padding: 18px 16px 10px; overflow: hidden; }
+.solcowork .sc-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.solcowork .sc-tile { position: relative; aspect-ratio: 1; min-width: 0; border-radius: var(--sc-r-l); background: var(--sc-surface); border: 1px solid var(--sc-line); }
+.solcowork .sc-tile::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 2px; background: var(--fam, transparent); pointer-events: none; opacity: 0; transition: opacity .5s;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.solcowork .sc-tile.in::after { opacity: 1; }
+.solcowork .sc-tile.add { background: none; border: 1.5px dashed var(--sc-mute); }
+.solcowork .sc-tile-in { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: flex-start; padding: 15px 15px 13px; border-radius: inherit; transition: transform .25s cubic-bezier(.2, .8, .2, 1); }
+.solcowork .sc-tile-in:hover { transform: translateY(-2px); }
+.solcowork .sc-tile .nm { margin-top: auto; font-size: 14px; font-weight: 600; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.solcowork .sc-tile.add .nm { color: var(--sc-dim); font-weight: 500; }
+.solcowork .sc-tile .wh { font-size: 11.5px; color: var(--sc-dim); line-height: 1.35; margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.solcowork .sc-tile .wh.now { color: var(--sc-ink); font-weight: 500; }
+.solcowork .sc-tag { position: absolute; top: 9px; right: 11px; font: 9.5px var(--sc-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--sc-mute); }
+.solcowork .sc-tile.in .sc-tag { display: none; }
+.solcowork .sc-hand { position: absolute; top: -13px; right: -10px; z-index: 2; width: 28px; height: 28px; opacity: 0; transform: scale(.4); }
+.solcowork .sc-tile.in .sc-hand { opacity: 1; transform: none; }
+.solcowork .sc-hand .neck { position: absolute; right: 14px; top: 12px; width: 12px; height: 12px; border-radius: 50%; background: var(--fam); filter: blur(.4px); z-index: -1; }
+.solcowork .sc-glyph { display: block; image-rendering: pixelated; shape-rendering: crispEdges; }
+.solcowork .sc-flash { animation: sc-flash 1.2s ease-out; }
+
+.solcowork .sc-box { flex: none; display: flex; align-items: center; gap: 10px; min-height: 48px; margin-top: 10px; padding: 0 16px; background: var(--sc-island); border: 1px solid var(--sc-edge); border-radius: 18px; box-shadow: inset 0 1px 0 var(--sc-edge), 0 18px 40px -18px var(--sc-shade); font-size: 13.5px; color: var(--sc-dim); }
+.solcowork .sc-box span { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.solcowork .sc-box .k { flex: none; font-size: 12px; color: var(--sc-mute); }
+
+/* the right column: what happened, then talk */
+.solcowork .sc-right { min-height: 0; display: grid; grid-template-rows: minmax(0, 50fr) minmax(0, 50fr); background: rgba(0, 0, 0, .14); border-left: 1px solid var(--sc-line); }
+.solcowork .sc-feed { min-height: 0; display: flex; flex-direction: column; }
+.solcowork .sc-fh { flex: none; display: flex; justify-content: space-between; align-items: baseline; padding: 16px 20px 10px; border-bottom: 1px solid var(--sc-line); }
+.solcowork .sc-fh b { font-size: 14px; }
+.solcowork .sc-fh span { font: 11px var(--sc-mono); color: var(--sc-dim); }
+.solcowork .sc-flist { flex: 1; min-height: 0; overflow: hidden; padding: 0 20px; }
+.solcowork .sc-flist li { display: grid; grid-template-columns: 44px 1fr; gap: 8px; padding: 9px 0; border-bottom: 1px solid var(--sc-line); font-size: 13px; line-height: 1.42; }
+.solcowork .sc-flist time { font: 11.5px var(--sc-mono); color: var(--sc-dim); padding-top: 2px; }
+.solcowork .sc-flist .sc-who { margin-right: 7px; vertical-align: -2px; }
+.solcowork .sc-flist .q { color: var(--sc-dim); }
+.solcowork .sc-flist li.fresh { background: linear-gradient(90deg, rgba(var(--sc-on), .06), transparent 70%); margin: 0 -20px; padding-left: 20px; padding-right: 20px; }
+
+.solcowork .sc-talk { min-height: 0; display: flex; flex-direction: column; border-top: 1px solid var(--sc-line); padding: 12px 20px 16px; }
+.solcowork .sc-threads { flex: none; display: flex; gap: 6px; margin-bottom: 8px; }
+.solcowork .sc-thread { height: 24px; padding: 0 11px; border: 1px solid var(--sc-line); border-radius: var(--sc-pill); font-size: 12px; color: var(--sc-dim); line-height: 22px; }
+.solcowork .sc-thread.on { background: #e9e6df; border-color: #e9e6df; color: #000; }
+.solcowork .sc-thread.ghost { border-style: dashed; color: var(--sc-mute); }
+.solcowork .sc-lines { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; padding-bottom: 10px; }
+.solcowork .sc-msg { display: flex; align-items: flex-end; gap: 8px; }
+.solcowork .sc-msg .col { min-width: 0; max-width: 84%; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.solcowork .sc-msg .who { display: flex; gap: 8px; margin-left: 4px; font-size: 11.5px; color: var(--sc-dim); }
+.solcowork .sc-msg .who small { font-size: 11px; color: var(--sc-mute); font-variant-numeric: tabular-nums; }
+.solcowork .sc-msg p { padding: 6px 12px; background: var(--sc-surface); border: 1px solid var(--sc-line); border-radius: var(--sc-r-l); border-bottom-left-radius: var(--sc-r-s); font-size: 13px; line-height: 1.45; }
+.solcowork .sc-msg.mine { justify-content: flex-end; }
+.solcowork .sc-msg.mine .col { align-items: flex-end; }
+.solcowork .sc-msg.mine p { border-radius: var(--sc-r-l); border-bottom-right-radius: var(--sc-r-s); background: rgba(253, 105, 185, .14); border-color: transparent; }
+.solcowork .sc-tbox { flex: none; display: flex; align-items: center; gap: 8px; padding: 7px 7px 7px 14px; background: var(--sc-island); border: 1px solid var(--sc-edge); border-radius: 18px; box-shadow: inset 0 1px 0 var(--sc-edge), 0 18px 40px -18px var(--sc-shade); }
+.solcowork .sc-tbox input { flex: 1; min-width: 0; height: 24px; border: 0; background: none; outline: 0; color: var(--sc-ink); font: inherit; font-size: 13px; user-select: text; -webkit-user-select: text; }
+.solcowork .sc-tbox input::placeholder { color: var(--sc-mute); }
+.solcowork .sc-tbox input:focus-visible { outline: 0; }
+.solcowork .sc-tbox:focus-within { box-shadow: inset 0 1px 0 rgba(var(--sc-on), .16), inset 0 0 0 1px rgba(var(--sc-on), .12), 0 18px 40px -18px var(--sc-shade); }
+.solcowork .sc-send { height: 26px; padding: 0 12px; border-radius: var(--sc-pill); background: rgba(var(--sc-on), .18); color: var(--sc-dim); font-size: 12px; transition: background .2s, color .2s; }
+.solcowork .sc-send.ready { background: #e9e6df; color: #000; font-weight: 600; }
+.solcowork .sc-caret { display: inline-block; width: 1.5px; height: 15px; margin-left: 1px; vertical-align: -3px; background: var(--sc-ink); animation: sc-blink 1s steps(1) infinite; }
+
+/* ---- a page in the centre: polls, decisions, a thing (tools.css, room.css rm-page) ---- */
+.solcowork .sc-back { align-self: flex-start; margin: 0 0 14px -6px; padding: 2px 6px; border-radius: var(--sc-r-s); font-size: 13px; color: var(--sc-dim); }
+.solcowork .sc-back:hover { color: var(--sc-ink); background: var(--sc-surface); }
+.solcowork .sc-th { display: grid; grid-template-columns: 56px minmax(0, 1fr); align-items: center; column-gap: 18px; }
+.solcowork .sc-th h2 { font-size: 24px; font-weight: 600; line-height: 1.2; margin-bottom: 4px; }
+.solcowork .sc-th p { font-size: 13.5px; line-height: 1.45; color: var(--sc-dim); max-width: 60ch; }
+.solcowork .sc-plus { display: flex; align-items: center; gap: 12px; width: 100%; margin-top: 20px; padding: 12px 16px; border: 1.5px dashed var(--sc-mute); border-radius: var(--sc-r); color: var(--sc-dim); font-size: 14px; }
+.solcowork .sc-plus span { font-size: 18px; width: 22px; text-align: center; }
+.solcowork .sc-log { margin-top: 16px; border-top: 1px solid var(--sc-line); }
+.solcowork .sc-log > li { padding: 14px 14px; border-bottom: 1px solid var(--sc-line); }
+.solcowork .sc-log h3 { font-size: 16px; font-weight: 600; line-height: 1.35; }
+.solcowork .sc-log .by { margin-top: 3px; font-size: 12.5px; color: var(--sc-dim); display: flex; align-items: center; gap: 6px; }
+.solcowork .sc-log .lines { margin-top: 7px; font-size: 14px; line-height: 1.55; }
+.solcowork .sc-log li.new { background: linear-gradient(90deg, rgba(var(--sc-on), .06), transparent 80%); }
+.solcowork .sc-poll { margin-top: 18px; padding: 16px; border-radius: var(--sc-r-l); background: var(--sc-surface); border: 1px solid var(--sc-line); transition: opacity .4s; }
+.solcowork .sc-poll.closed { opacity: .75; }
+.solcowork .sc-poll h3 { font-size: 16px; font-weight: 600; }
+.solcowork .sc-poll .by { margin: 3px 0 12px; font-size: 12.5px; color: var(--sc-dim); }
+.solcowork .sc-opts { display: flex; flex-direction: column; gap: 6px; }
+.solcowork .sc-opt { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto 28px; align-items: center; gap: 10px; width: 100%; min-height: 40px; padding: 6px 12px; border: 1px solid var(--sc-line); border-radius: var(--sc-r-s); background: var(--sc-page); font-size: 14px; overflow: hidden; }
+.solcowork .sc-opt:not(:disabled):hover { border-color: var(--sc-mute); }
+.solcowork .sc-opt:disabled { cursor: default; }
+.solcowork .sc-opt.mine { border-color: var(--sc-ink); }
+.solcowork .sc-opt .bar { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: rgba(var(--sc-on), .13); transform-origin: left; transform: scaleX(0); transition: transform .5s cubic-bezier(.2, .8, .2, 1); }
+.solcowork .sc-opt.win .bar { background: linear-gradient(90deg, rgba(253, 105, 185, .30), rgba(251, 113, 41, .24), rgba(244, 200, 42, .18)); }
+.solcowork .sc-opt .o, .solcowork .sc-opt .hands, .solcowork .sc-opt .n { position: relative; }
+.solcowork .sc-opt .hands { display: flex; gap: 3px; }
+.solcowork .sc-opt .n { font: 12.5px var(--sc-mono); color: var(--sc-dim); text-align: right; }
+.solcowork .sc-pfoot { margin-top: 16px; font-size: 12.5px; color: var(--sc-dim); }
+.solcowork .sc-closebtn { margin-top: 10px; height: 26px; padding: 0 12px; border-radius: var(--sc-pill); box-shadow: inset 0 0 0 1px var(--sc-edge); font-size: 12.5px; color: var(--sc-ink); }
+.solcowork .sc-thing-prev { margin-top: 18px; padding: 16px 18px; border-radius: var(--sc-r-l); background: var(--sc-surface); border: 1px solid var(--sc-line); }
+.solcowork .sc-thing-prev i { display: block; height: 8px; margin: 9px 0; border-radius: 4px; background: rgba(var(--sc-on), .08); }
+.solcowork .sc-pg-h { margin: 22px 0 8px; font: 10.5px var(--sc-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--sc-dim); }
+.solcowork .sc-cal li { display: grid; grid-template-columns: 92px minmax(0, 1fr) auto; gap: 14px; padding: 11px 14px; border-bottom: 1px solid var(--sc-line); align-items: center; }
+.solcowork .sc-cal .when { font: 12.5px var(--sc-mono); color: var(--sc-dim); }
+.solcowork .sc-cal .by { font-size: 12.5px; color: var(--sc-dim); }
+
+/* ---- the action board (cowork.css .cpage / .ccols / .ccard) ---- */
+.solcowork .sc-board { flex-direction: column; padding: 18px 28px 30px; overflow: hidden; }
+.solcowork .sc-bhead { display: flex; align-items: center; gap: 12px; margin: 4px 0 20px; }
+.solcowork .sc-bhead h2 { font-size: 17px; font-weight: 500; letter-spacing: .01em; }
+.solcowork .sc-bhead .at { color: var(--sc-mute); font-size: 12px; }
+.solcowork .sc-bhead .grow { flex: 1; }
+.solcowork .sc-pillb { height: 28px; padding: 0 14px; border-radius: var(--sc-pill); box-shadow: inset 0 0 0 1px var(--sc-edge); font-size: 13px; color: var(--sc-dim); white-space: nowrap; }
+.solcowork .sc-pillb.solid { background: #e9e6df; color: #000; box-shadow: none; }
+.solcowork .sc-pillb.plain { box-shadow: none; }
+.solcowork .sc-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 24px 14px; }
+.solcowork .sc-col { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.solcowork .sc-col h3 { display: flex; align-items: baseline; gap: 8px; margin: 0 0 4px; padding: 0 2px 8px; border-bottom: 1px solid var(--sc-line); font-size: 12px; font-weight: 400; color: var(--sc-dim); }
+.solcowork .sc-col h3 small { color: var(--sc-mute); font-size: 11px; font-variant-numeric: tabular-nums; }
+.solcowork .sc-col .slot { min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+.solcowork .sc-card { position: relative; display: block; width: 100%; padding: 7px 9px; background: rgba(0, 0, 0, .32); border: 1px solid var(--sc-line); border-radius: var(--sc-r-s); transition: border-color .2s, transform .25s cubic-bezier(.2, .8, .2, 1); will-change: transform; }
+.solcowork .sc-card:hover { border-color: var(--sc-mute); transform: translateY(-2px); }
+.solcowork .sc-card.here { border-color: var(--sc-ink); }
+.solcowork .sc-card.moving { z-index: 5; box-shadow: 0 18px 40px -14px rgba(0, 0, 0, .8); border-color: var(--sc-dim); }
+.solcowork .sc-card .l1 { display: flex; align-items: center; gap: 7px; min-width: 0; font-size: 12.5px; color: var(--sc-ink); }
+.solcowork .sc-card .num { flex: none; color: var(--sc-mute); font-variant-numeric: tabular-nums; }
+.solcowork .sc-card .ct { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.solcowork .sc-card .more { flex: none; color: var(--sc-mute); font-size: 13px; letter-spacing: 1px; }
+.solcowork .sc-card .l2 { display: flex; align-items: center; gap: 8px; margin: 3px 0 0 19px; min-height: 16px; min-width: 0; overflow: hidden; }
+.solcowork .sc-ctag { flex: none; font-size: 10.5px; color: var(--sc-mute); border: 1px solid var(--sc-line); border-radius: var(--sc-pill); padding: 0 6px; line-height: 14px; }
+.solcowork .sc-mark { flex: none; font-size: 10.5px; line-height: 14px; padding: 0 6px; border-radius: var(--sc-pill); border: 1px solid var(--sc-ink); color: var(--sc-ink); }
+.solcowork .sc-mark.silent { color: var(--sc-mute); border-color: var(--sc-line); }
+.solcowork .sc-sig { flex: 0 1 auto; min-width: 0; display: inline-flex; align-items: center; gap: 5px; color: var(--sc-dim); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.solcowork .sc-nobody { flex: none; width: 12px; height: 12px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--sc-mute); }
+.solcowork .sc-sub { margin: 30px 0 10px; font-size: 10.5px; letter-spacing: .08em; font-variant-caps: all-small-caps; color: var(--sc-dim); }
+.solcowork .sc-hands li { display: flex; align-items: center; gap: 8px; padding: 5px 2px; font-size: 12.5px; color: var(--sc-dim); }
+.solcowork .sc-hands li b { color: var(--sc-ink); font-weight: 500; }
+.solcowork .sc-hands .none { color: var(--sc-mute); }
+
+/* ---- a card's ⋯ (work/Menu): what to do with it ---- */
+.solcowork .sc-menu { position: absolute; z-index: 30; width: 290px; padding: 5px; border-radius: var(--sc-r); background: var(--sc-pop); border: 1px solid var(--sc-edge); box-shadow: var(--sc-pop-shadow); font-size: 13px; transform-origin: 0 0; }
+.solcowork .sc-menu .head { padding: 8px 10px 6px; }
+.solcowork .sc-menu .head b { display: block; font-size: 13.5px; line-height: 1.35; }
+.solcowork .sc-menu .head p { margin-top: 4px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 11.5px; color: var(--sc-dim); }
+.solcowork .sc-menu .trail { margin: 4px 10px 6px; padding-left: 10px; border-left: 1px solid var(--sc-line); }
+.solcowork .sc-menu .trail li { font-size: 11.5px; color: var(--sc-dim); padding: 2px 0; display: flex; gap: 8px; }
+.solcowork .sc-menu .trail time { font-family: var(--sc-mono); color: var(--sc-mute); }
+.solcowork .sc-menu hr { border: 0; border-top: 1px solid var(--sc-line); margin: 4px 0; }
+.solcowork .sc-menu .it { display: flex; justify-content: space-between; gap: 10px; width: 100%; padding: 6px 10px; border-radius: var(--sc-r-s); }
+.solcowork .sc-menu .it:hover { background: rgba(var(--sc-on), .08); }
+.solcowork .sc-menu .it small { color: var(--sc-mute); font-size: 11.5px; }
+
+/* ---- the demo's own cursor ---- */
+.solcowork .sc-cursor { position: absolute; left: 0; top: 0; z-index: 50; width: 20px; height: 24px; pointer-events: none; opacity: 0; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .5)); }
+.solcowork .sc-cursor .ring { position: absolute; left: -12px; top: -12px; width: 24px; height: 24px; border-radius: 50%; border: 2px solid rgba(var(--sc-on), .8); opacity: 0; }
+
+/* ---- narrow: the room alone, as the app does on a narrow stage (room.css @container 820px) ---- */
+.solcowork .sc-ntabs { display: none; }
+.solcowork .narrow .sc-side, .solcowork .narrow .sc-me, .solcowork .narrow .sc-teamw, .solcowork .narrow .sc-tabs, .solcowork .narrow .sc-dots { display: none; }
+.solcowork .narrow .sc-bar { padding-left: 14px; }
+.solcowork .narrow .sc-lights { margin-right: 12px; }
+.solcowork .narrow .sc-ntabs { display: flex; flex: none; gap: 6px; padding: 0 16px 6px; }
+.solcowork .narrow .sc-room { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+.solcowork .narrow .sc-centre { padding: 0 16px 6px; }
+.solcowork .narrow .sc-strip { margin: 0 -16px; padding: 0 10px; height: 58px; }
+.solcowork .narrow .sc-worker { gap: 9px; padding: 4px 6px; }
+.solcowork .narrow .sc-worker .l { font-size: 11px; }
+.solcowork .narrow .sc-main { flex: none; height: 400px; }
+.solcowork .narrow .sc-goal .gt { font-size: 16px; }
+.solcowork .narrow .sc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.solcowork .narrow .sc-tile.wide-only { display: none; }
+.solcowork .narrow .sc-tile-in { padding: 11px 11px 10px; }
+.solcowork .narrow .sc-tile .nm { font-size: 12.5px; }
+.solcowork .narrow .sc-tile .wh { font-size: 10.5px; }
+.solcowork .narrow .sc-tile .sc-glyph { width: 40px; height: 40px; }
+.solcowork .narrow .sc-gh span { display: none; }
+.solcowork .narrow .sc-box { display: none; }
+.solcowork .narrow .sc-right { grid-template-rows: minmax(0, 1fr) auto; border-left: 0; border-top: 1px solid var(--sc-line); }
+.solcowork .narrow .sc-flist { height: auto; }
+.solcowork .narrow .sc-fh { padding: 12px 16px 8px; }
+.solcowork .narrow .sc-flist { padding: 0 16px; }
+.solcowork .narrow .sc-talk { padding: 10px 16px 14px; height: 196px; }
+.solcowork .narrow .sc-board { padding: 12px 16px 20px; }
+.solcowork .narrow .sc-bhead .sc-pillb:not(.solid) { display: none; }
+.solcowork .narrow .sc-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 12px; }
+.solcowork .narrow .sc-gcard .from { display: none; }
+.solcowork .narrow .sc-th { grid-template-columns: 40px minmax(0, 1fr); column-gap: 12px; }
+.solcowork .narrow .sc-th h2 { font-size: 20px; }
+.solcowork .narrow .sc-th .sc-glyph { width: 40px; height: 40px; }
+
+@keyframes sc-spin { to { transform: rotate(360deg); } }
+@keyframes sc-breath { from { transform: scale(.92); } to { transform: scale(1.06); } }
+@keyframes sc-pulse { 0% { opacity: .55; transform: scale(.8); } 100% { opacity: 0; transform: scale(1.6); } }
+@keyframes sc-blink { 50% { opacity: 0; } }
+@keyframes sc-live { 0% { box-shadow: 0 0 0 0 rgba(112, 223, 69, .5); } 100% { box-shadow: 0 0 0 7px rgba(112, 223, 69, 0); } }
+@keyframes sc-flash { 0% { box-shadow: 0 0 0 0 rgba(var(--sc-on), .35); } 100% { box-shadow: 0 0 0 14px rgba(var(--sc-on), 0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .solcowork *, .solcowork *::before, .solcowork *::after { animation: none !important; transition: none !important; }
+}

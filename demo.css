@@ -1,0 +1,290 @@
+/* Sol's window, as a live demo for the website (demo.js mounts it). Everything is under .soldemo so the page's own
+   generic classes never reach in. The values are the app's: mac/src/face.css (the one material: the base colour at
+   an opacity, every surface the base laid again at a step, every line and word the "on" colour at an opacity),
+   work/work.css (the side, the rows, the rail), notch/notch.css (the slab, the capsules), palette.css (the hues). */
+
+.soldemo { position: relative; width: 100%; overflow: hidden; contain: layout paint; -webkit-font-smoothing: antialiased; user-select: none; -webkit-user-select: none; }
+.soldemo *, .soldemo *::before, .soldemo *::after { box-sizing: border-box; }
+.soldemo .sd-canvas {
+  /* the base: face.css defaults (black 0.78); demo.js tweens --bc / --ba for "warmer" */
+  --bc: 0 0 0; --ba: .78;
+  --on: 239 234 226;                 /* pearl #efeae2 */
+  --side: rgb(var(--bc) / .10);
+  --surface: rgb(var(--bc) / .25);
+  --raised: rgb(var(--bc) / .40);
+  --island: rgb(var(--bc) / .55);
+  --pop: rgb(var(--bc) / .96);
+  --shade: rgba(0,0,0,.55);
+  --pop-shadow: 0 12px 40px -12px rgba(0,0,0,.6);
+  --line: rgb(var(--on) / .07);
+  --edge: rgb(var(--on) / .11);
+  --ink: rgb(var(--on) / .92);
+  --dim: rgb(var(--on) / .55);
+  --mute: rgb(var(--on) / .32);
+  --candy: #fd69b9; --heart: #ff2e4e; --orange: #fb7129; --amber: #f89b2a; --sun: #f4c82a; --green: #70df45; --ember: #fd302d;
+  --glow: var(--candy);
+  --sol: linear-gradient(90deg, #fd69b9, #ff2e4e, #fb7129, #f89b2a, #f4c82a);
+  --r-s: 6px; --r: 10px; --r-l: 14px; --pill: 999px;
+  --chat-text: 15px;
+  --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  position: absolute; left: 0; top: 0; transform-origin: 0 0;
+  font: 15px/1.55 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", sans-serif;
+  color: var(--ink); letter-spacing: 0; text-align: left;
+}
+.soldemo button { font: inherit; color: inherit; margin: 0; }
+.soldemo p, .soldemo h3, .soldemo h4 { margin: 0; }
+.soldemo svg { display: block; }
+
+/* ---- the desktop the glass sits over ---- */
+.soldemo .sd-desk { position: absolute; inset: 0; border-radius: 22px; overflow: hidden; background: #050505; }
+.soldemo .sd-desk i { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55; }
+.soldemo .sd-desk i:nth-child(1) { width: 520px; height: 420px; left: -80px; top: 220px; background: radial-gradient(circle, #fd69b9 0, rgba(253,105,185,0) 70%); }
+.soldemo .sd-desk i:nth-child(2) { width: 560px; height: 460px; right: -120px; top: -60px; background: radial-gradient(circle, #fb7129 0, rgba(251,113,41,0) 70%); opacity: .45; }
+.soldemo .sd-desk i:nth-child(3) { width: 420px; height: 360px; left: 40%; bottom: -160px; background: radial-gradient(circle, #f4c82a 0, rgba(244,200,42,0) 70%); opacity: .28; }
+/* still on purpose: anything moving under the window's 48 px backdrop blur makes every frame re-blur */
+
+/* ---- the notch (notch.css): a black slab out of the top edge, the creature in it; springs in demo.js size it ---- */
+.soldemo .sd-notch { position: absolute; left: 50%; top: 0; z-index: 20; width: 180px; height: 30px; translate: -50% 0; background: #000; border-radius: 0 0 16px 16px; overflow: hidden; cursor: pointer;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0); }
+.soldemo .sd-notch.sd-open { box-shadow: 0 24px 60px -10px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.06); }
+.soldemo .sd-notch .sd-mark { position: absolute; left: 50%; top: 4px; width: 22px; height: 22px; margin-left: -11px; transform-origin: 50% 100%; }
+.soldemo .sd-notch .sd-mark img { width: 100%; height: 100%; display: block; }
+.soldemo .sd-notch .sd-saybox { position: absolute; left: 20px; top: 40px; width: 380px; display: flex; align-items: flex-start; gap: 12px; opacity: 0; }
+.soldemo .sd-notch .sd-saytext { flex: 1; min-width: 0; }
+.soldemo .sd-notch .sd-say { font: 13px/1.3 -apple-system, system-ui, sans-serif; color: #e9e6df; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.soldemo .sd-notch .sd-say b { font-weight: 600; }
+.soldemo .sd-notch .sd-meta { margin-top: 3px; font: 11px/1.2 -apple-system, system-ui, sans-serif; color: #8a877f; white-space: nowrap; }
+.soldemo .sd-notch .sd-btns { flex: none; display: flex; gap: 6px; }
+.soldemo .sd-cbtn { font: 600 12px/1 -apple-system, system-ui, sans-serif; letter-spacing: .01em; white-space: nowrap; padding: 6px 11px; border-radius: 999px; border: 1px solid rgba(233,230,223,.5); background: transparent; color: #e9e6df; cursor: pointer; }
+.soldemo .sd-cbtn.sd-first { background: #e9e6df; border-color: #e9e6df; color: #000; }
+
+/* ---- the window: the base at its opacity over the desktop, blurred ---- */
+.soldemo .sd-win { position: absolute; display: flex; flex-direction: column; border-radius: 12px; overflow: hidden;
+  background: rgb(var(--bc) / var(--ba)); -webkit-backdrop-filter: blur(48px) saturate(1.2); backdrop-filter: blur(48px) saturate(1.2);
+  box-shadow: inset 0 0 0 1px var(--edge), inset 0 1px 0 rgb(var(--on) / .08), 0 40px 90px -20px rgba(0,0,0,.85), 0 0 0 .5px rgba(0,0,0,.9); }
+.soldemo .sd-warmth { position: absolute; inset: 0; pointer-events: none; opacity: 0; z-index: 0;
+  background: radial-gradient(120% 80% at 50% 110%, rgba(251,113,41,.16), rgba(251,113,41,0) 60%), radial-gradient(80% 60% at 0% 0%, rgba(244,200,42,.07), rgba(244,200,42,0) 70%); }
+
+/* the overlay title bar (face.css .bar): 44 px, the lights, then the side key and the session's name; the rail at the right */
+.soldemo .sd-bar { position: relative; z-index: 3; flex: none; height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 10px 0 16px; color: var(--dim); font-size: 12px; }
+.soldemo .sd-lights { display: flex; gap: 8px; margin-right: 18px; }
+.soldemo .sd-lights i { width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; box-shadow: inset 0 0 0 .5px rgba(0,0,0,.25); }
+.soldemo .sd-lights i:nth-child(2) { background: #febc2e; }
+.soldemo .sd-lights i:nth-child(3) { background: #28c840; }
+.soldemo .sd-barbtn { flex: none; display: grid; place-items: center; width: 28px; height: 28px; padding: 0; background: none; border: 1px solid transparent; border-radius: var(--r-s); color: var(--dim); cursor: pointer; }
+.soldemo .sd-barbtn:hover { color: var(--ink); background: var(--raised); border-color: var(--line); }
+.soldemo .sd-barbtn svg { width: 14px; height: 14px; }
+.soldemo .sd-title { display: flex; align-items: baseline; gap: 10px; min-width: 0; padding-left: 6px; }
+.soldemo .sd-title .sd-tt { color: var(--ink); font-size: 13px; white-space: nowrap; }
+.soldemo .sd-title .sd-where { color: var(--mute); font-size: 12px; white-space: nowrap; }
+.soldemo .sd-spacer { flex: 1; }
+/* the rail (work.css .rail): a preset's row of buttons; its name quiet, a dot per preset */
+.soldemo .sd-rail { display: flex; align-items: center; gap: 8px; }
+.soldemo .sd-railname { color: rgb(var(--on) / .22); font-size: 11px; font-style: italic; white-space: nowrap; }
+.soldemo .sd-raildots { display: flex; gap: 3px; margin: 0 2px 0 -3px; }
+.soldemo .sd-raildots i { width: 9px; height: 14px; background: radial-gradient(circle, var(--line) 2px, transparent 2.5px); }
+.soldemo .sd-raildots i.sd-on { background: radial-gradient(circle, var(--ink) 2px, transparent 2.5px); }
+.soldemo .sd-word { position: relative; flex: none; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 11px; background: none; border: 1px solid var(--line); border-radius: var(--pill); color: var(--dim); font-size: 12px; white-space: nowrap; cursor: pointer; }
+.soldemo .sd-word:hover { color: var(--ink); border-color: var(--mute); }
+.soldemo .sd-word svg { width: 12px; height: 12px; }
+.soldemo .sd-slot { flex: none; display: flex; justify-content: flex-start; overflow: visible; width: 0; }
+.soldemo .sd-new::after { content: ""; position: absolute; top: -2px; right: -2px; width: 6px; height: 6px; border-radius: 50%; background: var(--candy); box-shadow: 0 0 0 2px rgb(10 10 10); }
+.soldemo .sd-barsep { flex: none; width: 1px; height: 16px; background: var(--line); }
+
+.soldemo .sd-body { position: relative; z-index: 1; flex: 1; min-height: 0; }
+
+/* ---- the side (face.css .side, work.css .wside): one glass panel, rounded at the corner that meets the talk ---- */
+.soldemo .sd-side { position: absolute; top: 0; bottom: 0; left: 0; width: 272px; z-index: 4; display: flex; flex-direction: column; background: rgb(var(--on) / .022);
+  border-top-right-radius: var(--r-l); box-shadow: inset -1px 0 0 var(--line); will-change: transform; }
+.soldemo .sd-side.sd-right { border-top-right-radius: 0; border-top-left-radius: var(--r-l); box-shadow: inset 1px 0 0 var(--line); }
+.soldemo .sd-side.sd-float { background: rgb(var(--bc) / .96); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); box-shadow: inset 1px 0 0 var(--edge), -14px 0 32px -8px var(--shade); }
+.soldemo .sd-shead { flex: none; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 10px 14px 8px; }
+.soldemo .sd-brand { display: flex; align-items: center; gap: 8px; }
+.soldemo .sd-brand img { width: 22px; height: 22px; }
+.soldemo .sd-brand span { font-size: 14px; color: var(--ink); letter-spacing: .02em; }
+/* the seat switch (face.css .seatsw): a lit capsule that slides */
+.soldemo .sd-seatsw { position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; height: 26px; padding: 2px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); border-radius: var(--pill); }
+.soldemo .sd-shead .sd-seatsw { width: 100%; }
+.soldemo .sd-seatsw .sd-thumb { position: absolute; top: 2px; bottom: 2px; left: 2px; border-radius: var(--pill); background: linear-gradient(180deg, rgb(255 255 255 / .2), rgb(255 255 255 / 0) 55%), rgb(var(--on) / .88); will-change: left, width; }
+.soldemo .sd-seatsw button { position: relative; display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 46px; padding: 0 10px; background: none; border: 0; border-radius: var(--pill); font-size: 12px; color: var(--dim); letter-spacing: .02em; cursor: pointer; transition: color .14s ease .05s; white-space: nowrap; }
+.soldemo .sd-seatsw button.sd-on { color: rgb(var(--bc)); color: #0b0b0b; }
+.soldemo .sd-seatsw button:not(.sd-on):hover { color: var(--ink); }
+.soldemo .sd-seatsw button i { width: 8px; height: 8px; flex: none; background: var(--c, var(--candy)); box-shadow: inset 0 0 0 1.5px rgba(0,0,0,.25); }
+/* new session (face.css .newc) and the search row (work.css .wfind) */
+.soldemo .sd-newc { display: flex; align-items: center; gap: 8px; margin: 2px 10px 6px; padding: 7px 10px; background: var(--surface); border: 0; box-shadow: inset 0 1px 0 var(--edge); border-radius: var(--r); color: var(--ink); font-size: 13px; text-align: left; cursor: pointer; }
+.soldemo .sd-newc:hover { background: var(--raised); }
+.soldemo .sd-newc span { flex: 1; }
+.soldemo .sd-newc kbd { font: inherit; font-size: 11px; color: var(--dim); }
+.soldemo .sd-newc svg { width: 13px; height: 13px; }
+.soldemo .sd-find { display: flex; align-items: center; gap: 7px; height: 36px; margin: 0 10px 4px; padding: 0 10px; background: var(--surface); box-shadow: inset 0 1px 0 var(--edge); border-radius: var(--r); color: var(--mute); font-size: 12.5px; }
+.soldemo .sd-find svg { width: 12px; height: 12px; }
+.soldemo .sd-find span { flex: 1; }
+.soldemo .sd-list { flex: 1; min-height: 0; overflow: hidden; padding: 0 10px 16px; }
+.soldemo .sd-group { display: flex; align-items: center; gap: 6px; margin: 8px 0 2px; padding: 6px 10px; font-size: 11px; letter-spacing: .08em; font-variant-caps: all-small-caps; color: var(--mute); }
+.soldemo .sd-group small { margin-left: auto; font-size: 11px; font-variant-numeric: tabular-nums; }
+.soldemo .sd-group svg { width: 12px; height: 12px; color: var(--dim); }
+.soldemo .sd-row { position: relative; display: flex; width: 100%; align-items: center; gap: 8px; padding: 5px 8px 5px 10px; background: none; border: 0; border-radius: var(--r-s); color: var(--dim); font-size: 13px; text-align: left; cursor: pointer; transition: color .15s, background .15s; }
+.soldemo .sd-row:hover { color: var(--ink); }
+.soldemo .sd-row.sd-on { background: var(--raised); color: var(--ink); box-shadow: inset 0 1px 0 var(--edge); }
+.soldemo .sd-row .sd-t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.soldemo .sd-row .sd-age { flex: none; font-size: 11px; color: var(--mute); font-variant-numeric: tabular-nums; }
+.soldemo .sd-row .sd-age.sd-live { color: var(--ink); }
+.soldemo .sd-row .sd-tag { flex: none; font-size: 10px; color: var(--dim); border: 1px solid var(--line); border-radius: var(--pill); padding: 0 5px; line-height: 14px; }
+.soldemo .sd-row.sd-landed { animation: sd-rowin .5s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes sd-rowin { from { opacity: 0; transform: translateY(-6px); } }
+/* a row's state (work.css .wst): a 5 px cell; the runner while it works */
+.soldemo .sd-wst { flex: none; display: grid; place-items: center; width: 12px; height: 12px; }
+.soldemo .sd-wst i { width: 5px; height: 5px; background: transparent; }
+.soldemo .sd-wst.sd-unread i { background: var(--ink); }
+.soldemo .sd-wst.sd-needs i { background: var(--glow); box-shadow: 0 0 6px var(--glow); }
+.soldemo .sd-wst.sd-run i { width: 9px; height: 9px; background:
+  linear-gradient(var(--ink), var(--ink)) 0 0 / 3px 3px no-repeat; animation: sd-runner .9s steps(1) infinite; opacity: .9; }
+@keyframes sd-runner {
+  0% { background-position: 0 0; } 12.5% { background-position: 3px 0; } 25% { background-position: 6px 0; } 37.5% { background-position: 6px 3px; }
+  50% { background-position: 6px 6px; } 62.5% { background-position: 3px 6px; } 75% { background-position: 0 6px; } 87.5% { background-position: 0 3px; } }
+.soldemo .sd-sfoot { flex: none; padding: 12px 14px 14px; }
+.soldemo .sd-sfoot .sd-newc { margin: 0; color: var(--dim); }
+
+/* ---- the talk ---- */
+.soldemo .sd-main { position: absolute; top: 0; bottom: 0; left: 272px; right: 0; display: flex; flex-direction: column; min-width: 0; }
+.soldemo .sd-talk { position: relative; flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; padding: 14px 0 10px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 22px, #000 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 22px, #000 100%); }
+.soldemo .sd-talk::-webkit-scrollbar { display: none; }
+.soldemo .sd-col { max-width: 700px; margin: 0 auto; padding: 0 28px; min-height: 100%; display: flex; flex-direction: column; justify-content: flex-end; }
+.soldemo .sd-empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; pointer-events: none; }
+.soldemo .sd-empty img { width: 64px; height: 64px; filter: drop-shadow(0 10px 30px rgba(253,105,185,.25)); }
+.soldemo .sd-empty p { font-size: 15px; color: var(--dim); }
+.soldemo .sd-empty p b { font-weight: 500; color: var(--ink); }
+
+/* his bubble (face.css .msg.me): the base laid again with a hairline, the tail corner small */
+.soldemo .sd-merow { display: flex; justify-content: flex-end; margin: 8px 0 18px; }
+.soldemo .sd-me { max-width: 78%; padding: 9px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); border-bottom-right-radius: var(--r-s); color: var(--ink); font-size: var(--chat-text); line-height: 1.5; transform-origin: 100% 100%; }
+/* Sol's words, bare on the glass (face.css .msg.you) */
+.soldemo .sd-you { margin: 0 0 16px; font-size: var(--chat-text); line-height: 1.6; color: var(--ink); }
+.soldemo .sd-you .sd-w { opacity: 0; }
+.soldemo .sd-you .sd-w.sd-in { opacity: 1; transition: opacity .25s ease; }
+.soldemo .sd-you.sd-live::after { content: ""; display: inline-block; width: 12px; height: 6px; margin-left: 5px; vertical-align: 1px;
+  background: linear-gradient(90deg, #0a0a0a 0 6px, #fff 6px 12px); animation: sd-eyeblink .9s steps(1) infinite; }
+@keyframes sd-eyeblink { 50% { transform: scaleY(.167); } }
+
+/* steps (face.css .steps): a stack of thin slabs; the running one lifted, its time in mono */
+.soldemo .sd-steps { display: flex; flex-direction: column; gap: 4px; margin: 0 0 14px; font-size: 13px; color: var(--dim); overflow: hidden; }
+.soldemo .sd-step { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 12px; background: var(--surface); border-radius: var(--r-s); box-shadow: inset 0 1px 0 var(--edge); transition: background .3s, color .3s, box-shadow .3s, translate .3s; }
+.soldemo .sd-step.sd-running { background: var(--raised); box-shadow: inset 0 1px 0 rgb(var(--on) / .16), inset 0 0 0 1px var(--edge), 0 10px 24px -12px var(--shade); color: var(--ink); translate: 0 -1px; }
+.soldemo .sd-step .sd-gl { flex: none; width: 16px; height: 16px; color: var(--mute); display: grid; place-items: center; }
+.soldemo .sd-step.sd-running .sd-gl { color: var(--dim); }
+.soldemo .sd-step .sd-gl svg { width: 14px; height: 14px; }
+.soldemo .sd-step .sd-tx { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.soldemo .sd-step .sd-tx b { font-weight: 500; color: var(--ink); }
+.soldemo .sd-step .sd-el { font-family: var(--mono); font-size: 11px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.soldemo .sd-step .sd-st { flex: none; width: 10px; height: 10px; display: grid; place-items: center; }
+.soldemo .sd-spin { display: block; width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--line); border-top-color: var(--glow); animation: sd-turn .9s linear infinite; }
+@keyframes sd-turn { to { transform: rotate(360deg); } }
+.soldemo .sd-check { width: 10px; height: 10px; color: var(--dim); }
+/* the steps fold, when done, into one quiet line: where the answer came from */
+.soldemo .sd-prov { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 0 0 8px; font-size: 12px; color: var(--mute); }
+.soldemo .sd-prov span { display: inline-flex; align-items: center; gap: 6px; }
+.soldemo .sd-prov i { width: 6px; height: 6px; background: var(--c, var(--mute)); }
+.soldemo .sd-prov b { font-weight: 500; color: var(--dim); }
+
+/* the desk card (face.css .dcard): the base laid again, a hairline, the title in small caps */
+.soldemo .sd-card { position: relative; display: flex; flex-direction: column; gap: 12px; margin: 2px 0 18px; padding: 16px 18px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: inset 0 1px 0 var(--edge); font-size: 14px; color: var(--ink); overflow: hidden; }
+.soldemo .sd-dtitle { display: flex; align-items: baseline; gap: 10px; font-size: 13px; font-weight: 500; letter-spacing: .06em; font-variant-caps: all-small-caps; color: var(--dim); }
+.soldemo .sd-dtitle .sd-grow { flex: 1; }
+.soldemo .sd-dtitle small { font-variant-caps: normal; letter-spacing: 0; font-size: 11.5px; color: var(--mute); font-weight: 400; }
+.soldemo .sd-days { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.soldemo .sd-day { display: flex; flex-direction: column; gap: 6px; min-height: 98px; padding: 10px 10px 10px; background: var(--surface); border-radius: var(--r-s); box-shadow: inset 0 1px 0 var(--edge); }
+.soldemo .sd-day h4 { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--mute); }
+.soldemo .sd-day.sd-today h4 { color: var(--ink); }
+.soldemo .sd-day p { display: flex; align-items: baseline; gap: 6px; font-size: 12.5px; line-height: 1.3; color: var(--ink); }
+.soldemo .sd-day p i { flex: none; width: 5px; height: 5px; translate: 0 -1px; background: var(--c, var(--mute)); }
+.soldemo .sd-day p.sd-big { font-weight: 600; }
+.soldemo .sd-day p.sd-big i { background: var(--sol); width: 6px; height: 6px; }
+.soldemo .sd-src { display: flex; align-items: center; gap: 12px; font-size: 11.5px; color: var(--mute); }
+.soldemo .sd-src span { display: inline-flex; align-items: center; gap: 6px; }
+.soldemo .sd-src i { width: 5px; height: 5px; background: var(--c, var(--mute)); }
+.soldemo .sd-dbtn { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; background: var(--raised); border: 1px solid var(--line); border-radius: var(--pill); color: var(--ink); font-size: 12px; letter-spacing: .02em; cursor: pointer; transition: border-color .15s, transform .15s; }
+.soldemo .sd-dbtn:hover { border-color: var(--dim); }
+.soldemo .sd-dbtn:active { transform: scale(.96); }
+.soldemo .sd-dbtn.sd-quiet { background: none; color: var(--dim); }
+
+/* the runs tracker Sol made: a total, seven bars, the goal in cells (face.css .cells), a + that works */
+.soldemo .sd-runs { max-width: 420px; }
+.soldemo .sd-runs .sd-top { display: flex; align-items: flex-end; gap: 12px; }
+.soldemo .sd-runs .sd-tot { font-size: 30px; font-weight: 600; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.soldemo .sd-runs .sd-tot small { margin-left: 4px; font-size: 13px; font-weight: 400; letter-spacing: 0; color: var(--dim); }
+.soldemo .sd-runs .sd-top .sd-grow { flex: 1; }
+.soldemo .sd-bars { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; align-items: end; height: 84px; }
+.soldemo .sd-bars .sd-b { position: relative; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
+.soldemo .sd-bars .sd-b span { display: block; width: 100%; height: 0; min-height: 3px; border-radius: 4px 4px 2px 2px; background: rgb(var(--on) / .78); transform-origin: 50% 100%; }
+.soldemo .sd-bars .sd-b.sd-zero span { background: var(--line); }
+.soldemo .sd-bars .sd-b.sd-today span { background: linear-gradient(180deg, var(--sun), var(--orange) 55%, var(--candy)); box-shadow: 0 0 18px -2px rgba(251,113,41,.45); }
+.soldemo .sd-bars .sd-b em { position: absolute; left: 50%; translate: -50% 0; bottom: calc(var(--h, 0px) + 5px); font: 10.5px var(--mono); font-style: normal; color: var(--dim); opacity: 0; transition: opacity .2s; white-space: nowrap; }
+.soldemo .sd-bars .sd-b.sd-today em, .soldemo .sd-bars:hover .sd-b em { opacity: 1; }
+.soldemo .sd-dl { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: -6px; font-size: 10.5px; color: var(--mute); text-align: center; letter-spacing: .04em; }
+.soldemo .sd-dl .sd-today { color: var(--ink); }
+.soldemo .sd-cells { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.soldemo .sd-cells i { display: block; width: 6px; height: 6px; background: var(--line); transition: background .3s; }
+.soldemo .sd-cells i.sd-got { background: var(--ink); }
+.soldemo .sd-cells small { margin-left: 8px; font-size: 11.5px; color: var(--mute); }
+.soldemo .sd-made { font-size: 11px; color: var(--mute); }
+
+/* building: the card's shape before it is a card, a sheen running over it */
+.soldemo .sd-skel { position: relative; max-width: 420px; height: 0; margin: 0 0 18px; border-radius: var(--r); border: 1px dashed var(--edge); overflow: hidden; }
+.soldemo .sd-skel .sd-ln { position: absolute; left: 18px; height: 8px; border-radius: 4px; background: var(--line); }
+.soldemo .sd-skel::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 20%, rgb(var(--on) / .07) 40%, rgba(253,105,185,.10) 50%, rgba(244,200,42,.07) 58%, transparent 75%); background-size: 250% 100%; animation: sd-sheen 1.3s linear infinite; }
+@keyframes sd-sheen { from { background-position: 130% 0; } to { background-position: -30% 0; } }
+.soldemo .sd-skel .sd-skb { position: absolute; bottom: 20px; width: 22px; border-radius: 4px 4px 2px 2px; background: var(--line); }
+
+/* the ghost of a button flying to the shelf (work.css .railghost) */
+.soldemo .sd-ghost { position: absolute; z-index: 30; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 11px; background: var(--pop); border: 1px solid var(--mute); border-radius: var(--pill); box-shadow: var(--pop-shadow); color: var(--ink); font-size: 12px; pointer-events: none; white-space: nowrap; }
+.soldemo .sd-ghost svg { width: 12px; height: 12px; }
+
+/* ---- the box (face.css .ask-inner, .picker): one floating island, the line on top, the pills under ---- */
+.soldemo .sd-ask { flex: none; padding: 0 0 18px; }
+.soldemo .sd-askcol { max-width: 700px; margin: 0 auto; padding: 0 28px; }
+.soldemo .sd-island { position: relative; display: flex; flex-direction: column; background: var(--island); border: 1px solid var(--edge); border-radius: 18px; box-shadow: inset 0 1px 0 var(--edge), 0 18px 40px -18px var(--shade); transition: box-shadow .15s; transform-origin: 50% 100%; }
+.soldemo .sd-island.sd-focus { box-shadow: inset 0 1px 0 rgb(var(--on) / .16), inset 0 0 0 1px rgb(var(--on) / .12), 0 18px 40px -18px var(--shade); }
+.soldemo .sd-line { position: relative; display: flex; align-items: flex-end; gap: 12px; min-height: 36px; padding: 14px 16px 0; }
+.soldemo .sd-input { flex: 1; min-width: 0; height: 26px; resize: none; background: transparent; color: var(--ink); border: 0; outline: 0; font: inherit; font-size: 15px; line-height: 1.5; padding: 2px 0; user-select: text; -webkit-user-select: text; caret-color: var(--glow); }
+.soldemo .sd-input::placeholder { color: var(--dim); }
+.soldemo .sd-typed { position: absolute; left: 16px; right: 16px; top: 16px; font-size: 15px; line-height: 1.5; color: var(--ink); white-space: nowrap; overflow: hidden; pointer-events: none; }
+.soldemo .sd-typed::after { content: ""; display: inline-block; width: 1.5px; height: 17px; margin-left: 1px; vertical-align: -3px; background: var(--glow); animation: sd-caret 1s steps(1) infinite; }
+.soldemo .sd-typed:empty { display: none; }
+@keyframes sd-caret { 50% { opacity: 0; } }
+.soldemo .sd-send { flex: none; display: grid; place-items: center; width: 26px; height: 26px; margin: 0 -4px 0 0; padding: 0; border: 0; border-radius: 50%; background: rgb(var(--on) / .88); color: #0b0b0b; cursor: pointer; opacity: 0; transform: scale(.6); transition: opacity .18s, transform .25s cubic-bezier(.3,1.6,.5,1); }
+.soldemo .sd-send.sd-on { opacity: 1; transform: none; }
+.soldemo .sd-send svg { width: 12px; height: 12px; }
+.soldemo .sd-picker { display: flex; align-items: center; gap: 8px; padding: 10px 12px 12px; font-size: 12px; white-space: nowrap; }
+.soldemo .sd-picker .sd-seatsw button { min-width: 0; padding: 0 10px; }
+.soldemo .sd-pill { flex: none; display: inline-flex; align-items: center; gap: 7px; height: 26px; padding: 0 11px; background: var(--surface); border: 0; box-shadow: inset 0 0 0 1px var(--line); border-radius: var(--pill); color: var(--dim); font-size: 12px; cursor: pointer; }
+.soldemo .sd-pill:hover { color: var(--ink); }
+.soldemo .sd-pill.sd-mono { font-family: var(--mono); font-size: 11.5px; letter-spacing: -.02em; }
+.soldemo .sd-pill .sd-lv { display: flex; gap: 2px; }
+.soldemo .sd-pill .sd-lv i { width: 3px; height: 8px; background: var(--mute); }
+.soldemo .sd-pill .sd-lv i.sd-on { background: var(--ink); }
+.soldemo .sd-grow { flex: 1; }
+.soldemo .sd-icon { flex: none; display: grid; place-items: center; width: 26px; height: 26px; color: var(--dim); border-radius: var(--r-s); }
+.soldemo .sd-icon svg { width: 14px; height: 14px; }
+.soldemo .sd-health { flex: none; display: inline-flex; gap: 3px; align-items: center; }
+.soldemo .sd-health i { width: 4px; height: 4px; background: var(--dim); }
+.soldemo .sd-status { flex: none; width: 18px; height: 18px; }
+.soldemo .sd-status img { width: 100%; height: 100%; }
+
+/* ---- compact: a phone-width canvas; the side floats in from the edge the way an unpinned side does ---- */
+.soldemo.compact .sd-side { width: 240px; }
+.soldemo.compact .sd-main { left: 0; }
+.soldemo.compact .sd-col, .soldemo.compact .sd-askcol { padding: 0 16px; }
+.soldemo.compact .sd-hide-c { display: none !important; }
+.soldemo.compact .sd-days { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; }
+.soldemo.compact .sd-day { padding: 8px 7px; min-height: 92px; }
+.soldemo.compact .sd-day p { font-size: 11.5px; }
+.soldemo.compact .sd-day p i { display: none; }
+.soldemo.compact .sd-lights { margin-right: 6px; }
+.soldemo.compact .sd-notch .sd-saybox { width: 300px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .soldemo .sd-desk i, .soldemo .sd-skel::after, .soldemo .sd-wst.sd-run i, .soldemo .sd-spin, .soldemo .sd-you.sd-live::after, .soldemo .sd-typed::after { animation: none !important; }
+}
+.soldemo.compact .sd-picker { gap: 6px; padding: 10px 10px 12px; }
+.soldemo.compact .sd-picker .sd-seatsw button { padding: 0 7px; gap: 4px; }

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sol demo · preview</title>
+<link rel="stylesheet" href="demo.css">
+<style>
+  /* a page like the site's: near-black, generic class names on purpose, to prove the demo ignores them */
+  html, body { margin: 0; background: #030303; color: rgba(255,255,255,.6); font: 14px/1.5 -apple-system, BlinkMacSystemFont, sans-serif; }
+  .m, .in, .chat, .shelf, .big, .st, .stage, .scene { outline: 1px dashed red !important; color: red !important; }
+  h2 { margin: 0 0 14px; font-size: 12px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.34); }
+  section { padding: 48px 6%; }
+  #full { max-width: 1240px; margin: 0 auto; }
+  #phone { width: 390px; margin: 0 auto; }
+</style>
+</head>
+<body>
+  <section><h2>full width</h2><div id="full"></div></section>
+  <section><h2>390 px</h2><div id="phone"></div></section>
+  <script type="module">
+    import './demo.js';
+    window.demos = [window.SolDemo.mount(document.getElementById('full')), window.SolDemo.mount(document.getElementById('phone'))];
+  </script>
+</body>
+</html>

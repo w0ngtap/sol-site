@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sol · Blog</title>
+<!-- One post, read from posts.js by ?p=<id>: the film or picture, the words, the next post, and the download. -->
+<link rel="stylesheet" href="style.css">
+<style>
+  article { max-width:720px; margin:0 auto; padding:100px 24px 40px; }
+  .back { color:var(--mute); font-size:13.5px; } .back:hover { color:var(--ink); }
+  .meta { margin-top:34px; color:var(--mute); font-size:13px; display:flex; gap:10px; align-items:center; }
+  .tag { font-size:11px; letter-spacing:.1em; text-transform:uppercase; padding:4px 10px; border-radius:999px; border:1px solid var(--hair); color:var(--ink); display:inline-flex; align-items:center; gap:6px; }
+  .tag i { width:6px; height:6px; border-radius:50%; background:var(--pearl); } .tag.film i { background:#ff2e4e; }
+  h1 { margin:12px 0 0; font-size:clamp(34px,5vw,56px); letter-spacing:-.04em; line-height:1.02; font-weight:600; }
+  .say { color:var(--dim); font-size:19px; margin:16px 0 0; }
+  .hero { margin:40px -60px 0; border-radius:18px; overflow:hidden; border:1px solid var(--hair); position:relative; background:#0b0b0b; }
+  .hero img, .hero video { display:block; width:100%; }
+  .hero .cov { aspect-ratio:16/9; }
+  .text { margin-top:44px; font-size:18px; line-height:1.7; color:rgba(255,255,255,.8); }
+  .text p { margin:0 0 1.2em; }
+  .sign { color:var(--mute); font-size:14px; border-top:1px solid var(--hair); padding-top:20px; margin-top:40px; }
+  .after { max-width:1000px; margin:40px auto 0; padding:0 24px; display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .try { border-radius:16px; border:1px solid var(--hair); padding:28px; display:flex; flex-direction:column; justify-content:space-between; gap:20px;
+         background:radial-gradient(ellipse at 50% 120%, #3a1410, transparent 70%); }
+  .try h3 { margin:0; font-size:26px; letter-spacing:-.03em; font-weight:600; }
+  .try p { margin:6px 0 0; color:var(--dim); }
+  .try .dl { align-self:flex-start; }
+  @media (max-width:900px) { .hero { margin:30px 0 0; } .after { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<nav class="menubar" data-on="blog"></nav>
+
+<article id="post"></article>
+<div class="after" id="after"></div>
+<footer class="foot"><span>Sol · made by three people and their agents</span><span><a href="index.html">Home</a><a href="blog.html">Blog</a><a href="#">GitHub</a></span></footer>
+
+<script src="nav.js"></script>
+<script src="posts.js"></script>
+<script>
+  const id = new URLSearchParams(location.search).get('p'), i = Math.max(0, POSTS.findIndex(p => p.id === id)), p = POSTS[i];
+  document.title = 'Sol · ' + p.title;
+  const media = p.video ? `<video src="${p.video}" controls autoplay muted loop playsinline></video>` : p.img ? `<img src="${p.img}" alt="">` : p.cover ? `<div class="cov ${p.cover}"></div>` : '';
+  document.getElementById('post').innerHTML = `
+    <a class="back" href="blog.html">← All posts</a>
+    <div class="meta"><span class="tag ${p.kind}"><i></i>${p.kind === 'film' ? 'Film' : 'Note'}</span>${fmtDate(p.date)} · ${p.len}</div>
+    <h1>${p.title}</h1><p class="say">${p.say}</p>
+    ${media ? `<div class="hero">${media}</div>` : ''}
+    <div class="text">${p.body}</div>
+    <div class="sign">Written by the Sol team.</div>`;
+  const next = POSTS[(i + 1) % POSTS.length], after = document.getElementById('after');
+  after.append(postCard(next));
+  after.insertAdjacentHTML('beforeend', `<div class="try"><div><h3>Try Sol.</h3><p>One window for all your AI. Free while it's in beta.</p></div>
+    <a class="dl" href="${DL.mac}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2v9M4 7l4 4 4-4M3 14h10"/></svg>Download for Mac</a></div>`);
+</script>
+</body>
+</html>

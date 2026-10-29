@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sol · Cowork demo preview</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="cowork.css">
+<style>
+  html, body { margin: 0; background: #030303; color: rgba(255,255,255,.92); font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 1240px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1 { font-size: 34px; font-weight: 650; letter-spacing: -.03em; margin: 0 0 6px; }
+  h1 span { background: linear-gradient(90deg,#fd69b9,#fb7129,#f4c82a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  p.lede { margin: 0 0 32px; color: rgba(255,255,255,.58); }
+  h2 { font-size: 13px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.34); margin: 64px 0 16px; }
+  .phone { width: 390px; max-width: 100%; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Work <span>together</span>, in one room.</h1>
+  <p class="lede">People and their agents, side by side. Click a tile, a card or a poll answer to take over; it plays again when you leave it.</p>
+  <div id="cowork-full"></div>
+  <h2>At 390px</h2>
+  <div id="cowork-phone" class="phone"></div>
+</main>
+<script type="module">
+  import './cowork.js';
+  window.SolCowork.mount(document.getElementById('cowork-full'));
+  window.SolCowork.mount(document.getElementById('cowork-phone'));
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+/* Sol's website: what every page shares. The look is the app's: glass black, pearl, the sunrise accent used sparingly. */
+:root {
+  --ink:rgba(255,255,255,.92); --dim:rgba(255,255,255,.58); --mute:rgba(255,255,255,.34); --hair:rgba(255,255,255,.08);
+  --pearl:#efeae2; --bg:#030303;
+  --acc:linear-gradient(90deg,#fd69b9,#ff2e4e,#fb7129,#f89b2a,#f4c82a);
+  --live:#70df45;
+  --ease:cubic-bezier(.2,.8,.2,1); --spring:cubic-bezier(.34,1.56,.64,1);
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+html,body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",sans-serif; -webkit-font-smoothing:antialiased; }
+button { font:inherit; cursor:pointer; color:inherit; }
+a { color:inherit; text-decoration:none; }
+section { position:relative; }
+.wrap { max-width:1240px; margin:0 auto; padding:0 6%; }
+
+.kick { font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--mute); font-weight:500; }
+.big { margin:10px 0 0; font-size:clamp(32px,4.6vw,62px); line-height:1.02; letter-spacing:-.04em; font-weight:600; }
+.lede { color:var(--dim); font-size:17px; max-width:540px; margin:14px 0 0; }
+.acc { background:var(--acc); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+.dl { display:inline-flex; align-items:center; gap:10px; border:0; border-radius:999px; padding:15px 28px; background:var(--pearl); color:#000;
+      font-weight:600; font-size:16px; transition:transform .25s var(--spring), box-shadow .3s; }
+.dl:hover { transform:scale(1.04); box-shadow:0 0 44px rgba(255,120,60,.35); }
+.dl svg { width:17px; height:17px; }
+.dl.sm { padding:8px 16px; font-size:13.5px; } .dl.sm svg { width:13px; height:13px; }
+.ghost { display:inline-flex; align-items:center; gap:8px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.04); border-radius:999px; padding:9px 16px; font-size:14px; color:var(--ink); transition:background .2s, border-color .2s; }
+.ghost:hover { background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.32); }
+
+/* the menu bar (nav.js fills it): a Mac's menu bar, with Sol's notch in the middle */
+.menubar { position:fixed; z-index:100; top:0; left:0; right:0; height:36px; display:flex; align-items:center; justify-content:space-between; padding:0 14px;
+           background:rgba(8,8,9,.62); backdrop-filter:blur(30px) saturate(1.4); -webkit-backdrop-filter:blur(30px) saturate(1.4); border-bottom:1px solid var(--hair); font-size:13.5px; }
+.menubar .l, .menubar .r { display:flex; align-items:center; gap:2px; flex:1; }
+.menubar .r { justify-content:flex-end; gap:14px; color:var(--dim); }
+.menubar .me { display:flex; align-items:center; gap:7px; font-weight:650; padding:4px 10px 4px 4px; letter-spacing:-.01em; }
+.menubar .me img { width:17px; height:17px; }
+/* the notch, Sol's menu (nav.js sizes it on springs; the contents sit at the open size and the slab uncovers them) */
+.menubar .notch { position:absolute; left:50%; top:0; transform:translateX(-50%); width:150px; height:30px; border-radius:0 0 16px 16px; background:#000;
+                  overflow:hidden; cursor:pointer; outline:none; box-shadow:0 0 0 1px rgba(255,255,255,0); transition:border-radius .3s, box-shadow .3s; }
+.menubar .notch.open { border-radius:0 0 26px 26px; cursor:default; box-shadow:0 30px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.07); }
+.menubar .notch::after { content:""; position:absolute; inset:0; border-radius:inherit; padding:0 1px 1px; background:var(--acc); opacity:0; transition:opacity .3s; pointer-events:none;
+                         -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; }
+.menubar .notch:hover::after, .menubar .notch:focus-visible::after { opacity:.7; } .menubar .notch.open::after { opacity:.35; }
+/* the creature in the notch, as in the real one: small under the bar, a little larger and lower once it opens */
+.menubar .notch .mark { position:absolute; left:50%; top:4px; width:22px; height:22px; margin-left:-11px; transition:transform .5s var(--spring); transform-origin:50% 0; animation:nbreathe 7s ease-in-out infinite; }
+.menubar .notch.open .mark { transform:translateY(5px) scale(1.25); }
+@keyframes nbreathe { 0%,100% { scale:1; } 50% { scale:1.06; } }
+.menubar .notch .drop { position:absolute; top:0; left:50%; translate:-50% 0; width:min(452px, calc(100vw - 16px)); padding:48px 16px 14px; }
+.menubar .notch .drop > * { opacity:0; translate:0 -10px; transition:opacity .14s, translate .14s; }
+.menubar .notch.open .drop > *, .menubar .notch.open .tiles a { opacity:1; translate:0 0; transition:opacity .3s calc(.12s + var(--d,0) * 50ms), translate .4s var(--spring) calc(.12s + var(--d,0) * 50ms); }
+.menubar .notch .hi { margin:0 0 10px; text-align:center; font-size:11.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--mute); }
+.menubar .notch .tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; opacity:1 !important; translate:none !important; }
+.menubar .notch .tiles a { display:flex; flex-direction:column; gap:2px; padding:6px 6px 10px; border-radius:14px; color:var(--ink); opacity:0; translate:0 -10px;
+                           transition:opacity .14s, translate .14s, background .2s; }
+.menubar .notch .tiles a:hover { background:rgba(255,255,255,.07); }
+.menubar .notch .pic { position:relative; display:block; aspect-ratio:12/7; border-radius:9px; overflow:hidden; background:#0c0c0c; border:1px solid var(--hair); margin-bottom:6px; }
+.menubar .notch .pic svg, .menubar .notch .pic img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .8s var(--ease); }
+.menubar .notch .tiles a:hover .pic svg, .menubar .notch .tiles a:hover .pic img { transform:scale(1.07); }
+.menubar .notch .pic em { position:absolute; top:5px; left:5px; font:600 9.5px/1 -apple-system,sans-serif; font-style:normal; letter-spacing:.08em; text-transform:uppercase; padding:3px 6px; border-radius:999px; background:var(--acc); color:#000; }
+.menubar .notch .pic .spin { transform-origin:60px 35px; animation:spin 4s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.menubar .notch .tiles b { font-size:13px; font-weight:600; padding:0 2px; } .menubar .notch .tiles small { font-size:11.5px; color:var(--mute); padding:0 2px; }
+@media (max-width:520px) { .menubar .notch .tiles { grid-template-columns:1fr 1fr; } .menubar .notch .tiles a:nth-child(3) { grid-column:span 2; } .menubar .notch .tiles a:nth-child(3) .pic { aspect-ratio:24/5; } }
+@media (prefers-reduced-motion: reduce) { .menubar .notch *, .menubar .notch { transition:none !important; animation:none !important; } }
+@keyframes blink { 0%,46%,50%,100% { transform:scaleY(1); } 48% { transform:scaleY(.1); } }
+footer.foot { display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; font-size:13px; color:var(--mute); padding:40px 6% 50px; max-width:1240px; margin:0 auto; }
+footer.foot > span:last-child { display:inline-flex; gap:18px; } footer.foot a:hover { color:var(--ink); }
+
+/* a post card, used by the home page's blog strip and the blog page */
+.post { position:relative; display:flex; flex-direction:column; border-radius:16px; overflow:hidden; border:1px solid var(--hair); background:rgba(255,255,255,.02);
+        transition:border-color .3s, transform .5s var(--ease); }
+.post:hover { border-color:rgba(255,255,255,.2); transform:translateY(-3px); }
+.post .media { position:relative; aspect-ratio:16/10; overflow:hidden; background:#0b0b0b; }
+.post .media > * { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform 1.2s var(--ease); }
+.post:hover .media > * { transform:scale(1.05); }
+.post .kind { position:absolute; z-index:2; top:12px; left:12px; font-size:11px; letter-spacing:.1em; text-transform:uppercase; padding:4px 9px; border-radius:999px;
+              background:rgba(0,0,0,.55); backdrop-filter:blur(10px); color:var(--ink); display:flex; align-items:center; gap:6px; }
+.post .kind i { width:6px; height:6px; border-radius:50%; background:var(--pearl); }
+.post .kind.film i { background:#ff2e4e; }
+.post .body { padding:16px 18px 18px; display:flex; flex-direction:column; gap:6px; flex:1; }
+.post .body small { color:var(--mute); font-size:12px; }
+.post .body b { font-size:19px; letter-spacing:-.02em; font-weight:600; line-height:1.2; }
+.post .body p { margin:0; color:var(--dim); font-size:14px; }
+.post.text .media { display:none; }
+.post.text .body { justify-content:flex-end; min-height:220px; background:radial-gradient(ellipse at 0% 0%, rgba(255,255,255,.05), transparent 60%); }
+.post.text .body b { font-size:24px; }
+
+/* drawn covers, until the real stills exist */
+.cov { background:#0b0b0b; }
+.cov.dawn { background:radial-gradient(circle at 50% 78%, #ff5a3c 0, #8a1435 22%, #12060a 55%, #000 80%); }
+.cov.glass { background:linear-gradient(135deg, rgba(255,255,255,.1), transparent 40%), radial-gradient(circle at 70% 30%, #f89b2a55, transparent 50%), #0a0a0a; }
+.cov.blocks { background:repeating-linear-gradient(0deg, transparent 0 31px, rgba(255,255,255,.07) 31px 32px), repeating-linear-gradient(90deg, transparent 0 31px, rgba(255,255,255,.07) 31px 32px), #070707; }
+.cov.three { background:radial-gradient(circle at 30% 50%, #efeae2 0 5%, transparent 5.5%), radial-gradient(circle at 50% 50%, #efeae2 0 5%, transparent 5.5%), radial-gradient(circle at 70% 50%, #efeae2 0 5%, transparent 5.5%), #0a0a0a; }
+.cov.beta { background:conic-gradient(from 200deg at 50% 80%, #000, #3a1d0b, #f89b2a, #000 60%); }
+.play { position:absolute !important; inset:auto !important; width:44px !important; height:44px !important; left:50% !important; top:50% !important; margin:-22px 0 0 -22px;
+        border-radius:50%; background:rgba(255,255,255,.16); backdrop-filter:blur(12px); display:grid; place-items:center; font-size:13px; z-index:2; transform:none !important; }
+
+.theater { position:fixed; inset:0; z-index:200; background:rgba(0,0,0,.94); display:none; place-items:center; }
+.theater.on { display:grid; }
+.theater video { width:min(84%,1200px); border-radius:14px; border:1px solid var(--hair); }
+.theater .x { position:absolute; top:18px; right:24px; background:none; border:0; color:var(--dim); font-size:28px; }
+
