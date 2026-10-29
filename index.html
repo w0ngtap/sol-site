@@ -4,6 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Sol · one window for all your AI</title>
+<meta name="description" content="Claude, ChatGPT's Codex, your browser, notes and your voice, in one app on your own Mac. Free while it's in beta.">
+<!-- the share card (#370): iMessage, WhatsApp and Discord want absolute addresses. They name the preview until hosting
+     is chosen (#304); then the address changes here and nowhere else. -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://w0ngtap.github.io/sol-site/">
+<meta property="og:title" content="Sol · one window for all your AI">
+<meta property="og:description" content="Claude, ChatGPT's Codex, your browser, notes and your voice, in one app on your own Mac. Free while it's in beta.">
+<meta property="og:image" content="https://w0ngtap.github.io/sol-site/media/window.png">
+<meta name="twitter:card" content="summary_large_image">
 <!-- Sol's website, the home page. Marco, 2026-10-27: on first sight you can download; around it, other ways in.
      The first screen is a Mac desktop (after heyclicky's, his reference): the menu bar with Sol's notch, Sol and the
      download in the middle, and around it live little demos, icons and stickers that each open something (desk.js,
@@ -205,6 +214,24 @@
   .desk .cue i { width:1px; height:34px; background:linear-gradient(var(--pearl), transparent); animation:cue 2.2s ease-in-out infinite; transform-origin:top; }
   @keyframes cue { 0% { transform:scaleY(0); } 50% { transform:scaleY(1); } 100% { transform:scaleY(1); opacity:0; } }
 
+  /* the hero's one line of needs (#370): what a friend must have, and the way to the first open */
+  .desk .needs { margin:22px 0 0; font-size:13.5px; color:var(--mute); }
+  .desk .needs a { color:var(--dim); border-bottom:1px solid rgba(255,255,255,.18); } .desk .needs a:hover { color:var(--ink); border-color:var(--ink); }
+
+  /* ================= BEFORE YOU OPEN IT (#370): what you need, and macOS's one-time Open Anyway ================= */
+  #open .need { display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; width:min(960px, 100% - 64px); margin:0 auto; text-align:left; }
+  #open .need > div { padding:22px 22px 20px; border-radius:18px; border:1px solid var(--hair); background:rgba(255,255,255,.03); }
+  #open .need b { display:block; font-size:17px; font-weight:600; margin-bottom:6px; }
+  #open .need p { margin:0; font-size:14.5px; color:var(--dim); line-height:1.45; }
+  #open .need p a { color:var(--ink); border-bottom:1px solid rgba(255,255,255,.2); }
+  #open ol { list-style:none; counter-reset:s; display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; width:min(960px, 100% - 64px); margin:36px auto 0; padding:0; text-align:left; }
+  #open li { counter-increment:s; display:grid; grid-template-columns:26px 1fr; gap:10px; font-size:14.5px; color:var(--dim); line-height:1.45; }
+  #open li::before { content:counter(s); width:24px; height:24px; border-radius:50%; display:grid; place-items:center; font-size:12px; font-weight:600; color:#000; background:var(--pearl); }
+  #open li b { color:var(--ink); font-weight:600; }
+  #open li.here::before { background:var(--acc); }
+  #open > p.why { margin-top:40px; margin-bottom:0; font-size:14.5px; color:var(--mute); }
+  @media (max-width:900px) { #open .need, #open ol { grid-template-columns:1fr; } }
+
   /* ================= END ================= */
   #end { padding:40px 6% 0; text-align:center; background:linear-gradient(#000, #000 340px, #2a0f0c 470px, #c8644a 72%, var(--pearl) 92%); color:#111; }
   /* the film (Higgsfield, from the real creature): it wakes, the sun comes up behind it, and it holds there */
@@ -241,6 +268,7 @@
       <div><button class="ghost" id="lineBtn">Linux &amp; Windows</button><small>one line in a terminal</small></div>
     </div>
     <div class="line" id="line"><span>curl -fsSL https://marcocyl04-ux.github.io/sol-beta/install | sh</span><button>copy</button></div>
+    <p class="needs">a Mac, and your own ChatGPT or Claude plan · <a href="#open">the first open, in three clicks</a></p>
   </div>
 
   <a class="cue" href="#see">see how it works<i></i></a>
@@ -276,12 +304,28 @@
 <section class="solpillars" id="road"></section>
 
 <!-- ============ END ============ -->
+<section id="open" class="chapter">
+  <h2>Before you open it.</h2>
+  <p>Sol runs on your Mac, on the AI you already pay for. It's free while it's in beta.</p>
+  <div class="need">
+    <div><b>A Mac</b><p>Any recent Mac. Linux runs from the one line, with the window in your browser; Windows and the phone come later.</p></div>
+    <div><b>Your own ChatGPT or Claude plan</b><p>ChatGPT Plus or Pro, or Claude Pro or Max. Either one works; both is best. You sign in yourself, so Sol never sees your password and the thinking runs on your own plan.</p></div>
+    <div><b>Fifteen minutes</b><p>Download, open, say your name, allow a few things, sign in. Something odd? <a href="https://discord.gg/f2CHmYDDZV">Tell us on Discord</a>; one of the three of us reads it.</p></div>
+  </div>
+  <ol>
+    <li><span>Open Sol. macOS says <b>"Sol" Not Opened</b>. Click <b>Done</b>.</span></li>
+    <li class="here"><span>Open <b>System Settings</b> › <b>Privacy &amp; Security</b>, scroll down, click <b>Open Anyway</b>.</span></li>
+    <li><span>Click <b>Open Anyway</b> once more and type your Mac's password. Sol opens, and it never asks again.</span></li>
+  </ol>
+  <p class="why">Apple registers apps for a yearly fee, and we haven't done that yet for the beta, so your Mac is careful the first time. Nothing else is different.</p>
+</section>
+
 <section id="end">
   <video class="dawnfilm" src="media/films/creature-alive.mp4" poster="media/films/creature-alive.jpg" muted playsinline preload="auto" aria-hidden="true"></video>
   <h2 id="download">Good morning.</h2>
   <p>Sol for Mac. Free while it's in beta.</p>
   <a class="dl" data-dl href="#"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2v9M4 7l4 4 4-4M3 14h10"/></svg>Download for Mac</a>
-  <footer class="foot"><span>Sol · made by three people and their agents</span><span><a href="blog.html">Blog</a><a href="#">GitHub</a><a href="#">Discord</a></span></footer>
+  <footer class="foot"><span>Sol · made by three people and their agents</span><span><a href="blog.html">Blog</a><a href="https://discord.gg/f2CHmYDDZV">Discord</a><a href="https://github.com/marcocyl04-ux/sol-beta">GitHub</a><a href="https://marcocyl04-ux.github.io/sol-beta/privacy.html">Privacy</a><a href="https://marcocyl04-ux.github.io/sol-beta/terms.html">Terms</a><a href="https://marcocyl04-ux.github.io/sol-beta/support.html">Support</a></span></footer>
 </section>
 
 

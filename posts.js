@@ -21,7 +21,7 @@ const POSTS = [
   { id:'beta', kind:'note', date:'2026-10-23', len:'2 min', title:'The beta is open', img:'media/minds.png',
     say:'One line in Terminal or one download. What to expect, and how to tell us what broke.',
     body:`<p>Sol is open to try. On a Mac, download it and open it, or paste one line in Terminal. On Linux, or Windows under WSL, the same line runs Sol in your browser.</p>
-      <p>Two things to know. Sol runs the AIs you already pay for, so bring a Claude or ChatGPT account. And it is a beta: things will break. When they do, tell us on GitHub; the person who reads it is one of the three people building Sol.</p>` },
+      <p>Three things to know. Sol runs the AIs you already pay for, so bring a ChatGPT Plus or a Claude Pro plan; either one does. The first time you open the download, your Mac stops it once, because we aren't registered with Apple yet: System Settings, Privacy &amp; Security, Open Anyway, and it never asks again. And it is a beta: things will break. When they do, tell us on <a href="https://discord.gg/f2CHmYDDZV">our Discord</a>, or press Tell us… in Sol's menu bar; the person who reads it is one of the three people building Sol.</p>` },
   { id:'glue', kind:'note', date:'2026-10-20', len:'3 min', title:'Stop being the glue',
     say:'Work lived in one app and life in another. Every AI made us the thing that carries context between them.',
     body:`<p>Count the AIs you used this week. A chat for questions, an agent for code, another for search, the one in your notes app, the one in your mail.</p>
