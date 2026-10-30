@@ -142,6 +142,9 @@
   footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding-top: 28px; border-top: 1px solid var(--line); font-size: 14px; color: var(--dim); }
   footer nav { display: flex; gap: 22px; }
   footer a { color: var(--dim); border: 0; }
+  /* the Discord links wear Discord's own blue, so "Tell us" reads as a place, not a line of text */
+  footer a.discord { color: #7289ff; border-bottom: 1px solid rgb(114 137 255 / .45); }
+  footer a.discord:hover { color: #9fb0ff; border-color: #9fb0ff; }
   footer a:hover { color: var(--ink); }
   .mini { display: inline-flex; align-items: center; gap: 8px; }
   .mini svg { width: 20px; height: 20px; }
@@ -318,8 +321,8 @@
   </section>
 
   <footer>
-    <span class="mini"><svg viewBox="0 0 100 100"><use href="#outline" fill="#ebebe8"/></svg><span>Made by Marco, Frank and Isaac, and their agents. Something wrong, or a thought? <a href="https://discord.gg/f2CHmYDDZV">Tell us on Discord</a>.</span></span>
-    <nav><a href="https://discord.gg/f2CHmYDDZV">Discord</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="support.html">Support</a></nav>
+    <span class="mini"><svg viewBox="0 0 100 100"><use href="#outline" fill="#ebebe8"/></svg><span>Made by Marco, Frank and Isaac, and their agents. Something wrong, or a thought? <a class="discord" href="https://discord.gg/f2CHmYDDZV">Tell us on Discord</a>.</span></span>
+    <nav><a class="discord" href="https://discord.gg/f2CHmYDDZV">Discord</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="support.html">Support</a></nav>
   </footer>
 
 </main>
